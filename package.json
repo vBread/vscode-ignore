@@ -1,0 +1,44 @@
+{
+	"name": "vscode-ignore",
+	"displayName": "vscode-ignore",
+	"description": "Syntax highlighting for .ignore files",
+	"version": "1.0.0",
+	"publisher": "Breadnaught",
+	"engines": {
+		"vscode": "^1.54.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/vBread/vscode-ignore.git"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "ignore",
+				"aliases": [
+					"Ignore"
+				],
+				"extensions": [
+					".gitignore",
+					".npmignore",
+					".dockerignore",
+					".vscodeignore",
+					".prettierignore",
+					".eslintignore",
+					".stylelintignore"
+				],
+				"configuration": "./config.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "ignore",
+				"scopeName": "source.ignore",
+				"path": "./syntaxes/ignore.tmLanguage.json"
+			}
+		]
+	}
+}

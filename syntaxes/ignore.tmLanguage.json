@@ -1,0 +1,100 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "ignore",
+	"scopeName": "source.ignore",
+	"fileTypes": [
+		"gitignore",
+		"npmignore",
+		"dockerignore",
+		"vscodeignore",
+		"prettierignore",
+		"eslintignore",
+		"stylelintignore"
+	],
+	"patterns": [
+		{
+			"include": "#comment"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#escapes"
+		},
+		{
+			"include": "#path"
+		},
+		{
+			"include": "#punctuation"
+		}
+	],
+	"repository": {
+		"comment": {
+			"name": "comment.line.hash.ignore",
+			"match": "(?<!\\\\)#.*$"
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.quantifier.ignore",
+					"match": "(?<!\\\\)\\*{1,2}|(?<!\\\\)\\?"
+				},
+				{
+					"name": "keyword.operator.negate.ignore",
+					"match": "(?<!\\\\)!"
+				},
+				{
+					"name": "constant.other.character-class.ignore",
+					"match": "(\\[(!)?(\\w+)?((?:\\w-\\w)+)?(\\w+)?\\])",
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.character-class.ignore"
+						},
+						"2": {
+							"name": "keyword.operator.negate.ignore"
+						},
+						"3": {
+							"name": "constant.other.character-class.set.ignore"
+						},
+						"4": {
+							"name": "constant.other.character-class.range.ignore"
+						},
+						"5": {
+							"name": "constant.other.character-class.set.ignore"
+						}
+					}
+				}
+			]
+		},
+		"escapes": {
+			"name": "constant.character.escape.ignore",
+			"match": "\\\\[#!?*/]"
+		},
+		"punctuation": {
+			"name": "punctuation.separator.directory.ignore",
+			"match": "(?<!\\\\)/"
+		},
+		"path": {
+			"name": "entity.other.path.ignore",
+			"match": "/?([^.]+/?)/?",
+			"captures": {
+				"1": {
+					"patterns": [
+						{
+							"include": "#comment"
+						},
+						{
+							"include": "#operators"
+						},
+						{
+							"include": "#escapes"
+						},
+						{
+							"include": "#punctuation"
+						}
+					]
+				}
+			}
+		}
+	}
+}
