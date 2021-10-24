@@ -3,98 +3,212 @@
 	"name": "ignore",
 	"scopeName": "source.ignore",
 	"fileTypes": [
-		"gitignore",
-		"npmignore",
-		"dockerignore",
-		"vscodeignore",
-		"prettierignore",
-		"eslintignore",
-		"stylelintignore"
+		".alexignore",
+		".bazelignore",
+		".boringignore",
+		".bzrignore",
+		".cfignore",
+		".chefignore",
+		".deployignore",
+		".dockerignore",
+		".ebignore",
+		".eleventyignore",
+		".eslintignore",
+		".flooignore",
+		".gcloudignore",
+		".gitignore",
+		".helmignore",
+		".hgignore",
+		".jpmignore",
+		".jshintignore",
+		".markdownlintignore",
+		".mtn-ignore",
+		".nodemonignore",
+		".npmignore",
+		".nuxtignore",
+		".p4ignore",
+		".prettierignore",
+		".slugignore",
+		".solhint",
+		".stylelintignore",
+		".stylintignore",
+		".swagger-codegen-ignore",
+		".stignore",
+		".tfignore",
+		".tokeignore",
+		".upignore",
+		".vercelignore",
+		".vscodeignore",
+		".yarnignore"
 	],
 	"patterns": [
 		{
-			"include": "#comment"
-		},
-		{
-			"include": "#operators"
-		},
-		{
-			"include": "#escapes"
-		},
-		{
-			"include": "#path"
-		},
-		{
-			"include": "#punctuation"
+			"include": "#main"
 		}
 	],
 	"repository": {
-		"comment": {
-			"name": "comment.line.hash.ignore",
-			"match": "(?<!\\\\)#.*$"
+		"main": {
+			"patterns": [
+				{ "include": "#comment" },
+				{ "include": "#signature" },
+				{ "include": "#pathspec" },
+				{ "include": "#escape" }
+			]
 		},
-		"operators": {
+		"comment": {
+			"name": "comment.line.number-sign.ignore",
+			"begin": "#",
+			"end": "$",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.defintion.comment.ignore"
+				}
+			}
+		},
+		"escape": {
+			"name": "constant.character.escape.ignore",
+			"match": "\\\\."
+		},
+		"pathspec": {
+			"name": "meta.pathspec.ignore",
+			"begin": "(?=[^#\\s])",
+			"end": "$|(?=#)",
+			"patterns": [
+				{ "include": "#escape" },
+				{ "include": "#range" },
+				{
+					"name": "keyword.operator.logical.ignore",
+					"match": "\\G!"
+				},
+				{
+					"name": "keyword.operator.wildcard.ignore",
+					"match": "\\*\\*|[*?]"
+				},
+				{
+					"name": "punctuation.separator.directory.ignore",
+					"match": "/"
+				},
+				{
+					"name": "entity.other.path.ignore",
+					"match": "[^\\[\\]\\\\*?#/\\s]+"
+				}
+			]
+		},
+		"range": {
+			"name": "constant.other.character-class.set.ignore",
+			"begin": "\\[",
+			"end": "\\]|(?=$)",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.character-class.begin.ignore"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.character-class.end.ignore"
+				}
+			},
+			"contentName": "constant.other.character-class.range.ignore",
+			"patterns": [{ "include": "#escape" }]
+		},
+		"signature": {
 			"patterns": [
 				{
-					"name": "keyword.operator.quantifier.ignore",
-					"match": "(?<!\\\\)\\*{1,2}|(?<!\\\\)\\?"
-				},
-				{
-					"name": "keyword.operator.negate.ignore",
-					"match": "(?<!\\\\)!"
-				},
-				{
-					"name": "constant.other.character-class.ignore",
-					"match": "(\\[(!)?(\\w+)?((?:\\w-\\w)+)?(\\w+)?\\])",
-					"captures": {
+					"name": "meta.pathspec.signature.ignore",
+					"begin": "^(:)(\\()(?=.*?\\))",
+					"end": "(?<!\\\\)\\)|(?=\\s*$)",
+					"beginCaptures": {
 						"1": {
-							"name": "punctuation.definition.character-class.ignore"
+							"name": "keyword.operator.signature.ignore"
 						},
 						"2": {
-							"name": "keyword.operator.negate.ignore"
+							"name": "punctuation.definition.signature.begin.ignore"
+						}
+					},
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.signature.end.ignore"
+						}
+					},
+					"patterns": [
+						{ "include": "#escape" },
+						{
+							"patterns": [
+								{ "include": "etc#comma" },
+								{
+									"name": "meta.attribute-list.ignore",
+									"begin": "(?:\\G|(?<=,|\\())(attr)(:)",
+									"end": "(?=,|\\)|$)",
+									"beginCaptures": {
+										"1": {
+											"name": "keyword.control.ignore"
+										},
+										"2": {
+											"name": "punctuation.separator.attribute.ignore"
+										}
+									},
+									"patterns": [
+										{
+											"name": "meta.attribute.gitignore",
+											"match": "(-|!)?((?:[^\\\\\\s=\\(\\),]|\\\\.)++)(?:(=)((?:[^\\\\\\s=\\(\\),]|\\\\.)*+))?",
+											"captures": {
+												"1": {
+													"patterns": [
+														{
+															"name": "keyword.operator.logical.ignore",
+															"match": "[!-]"
+														}
+													]
+												},
+												"2": {
+													"name": "variable.parameter.ignore",
+													"patterns": [{ "include": "#escape" }]
+												},
+												"3": {
+													"name": "keyword.operator.assignment.ignore"
+												},
+												"4": {
+													"name": "constant.language.other.ignore",
+													"patterns": [{ "include": "#escape" }]
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "meta.attribute.gitignore",
+									"match": "(?:\\G|(?<=,|\\())(-|!)?((?:[^\\\\=\\s,:\\)]|\\\\.)++)(?=,|\\))",
+									"captures": {
+										"1": {
+											"patterns": [
+												{
+													"name": "keyword.operator.logical.ignore",
+													"match": "[!-]"
+												}
+											]
+										},
+										"2": {
+											"name": "keyword.control.ignore"
+										}
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "meta.pathspec.signature.ignore",
+					"match": "^(:)([!^]+)",
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.signature.ignore"
 						},
-						"3": {
-							"name": "constant.other.character-class.set.ignore"
-						},
-						"4": {
-							"name": "constant.other.character-class.range.ignore"
-						},
-						"5": {
-							"name": "constant.other.character-class.set.ignore"
+						"2": {
+							"name": "keyword.operator.logical.ignore"
 						}
 					}
 				}
 			]
-		},
-		"escapes": {
-			"name": "constant.character.escape.ignore",
-			"match": "\\\\[#!?*/]"
-		},
-		"punctuation": {
-			"name": "punctuation.separator.directory.ignore",
-			"match": "(?<!\\\\)/"
-		},
-		"path": {
-			"name": "entity.other.path.ignore",
-			"match": "/?([^.]+/?)/?",
-			"captures": {
-				"1": {
-					"patterns": [
-						{
-							"include": "#comment"
-						},
-						{
-							"include": "#operators"
-						},
-						{
-							"include": "#escapes"
-						},
-						{
-							"include": "#punctuation"
-						}
-					]
-				}
-			}
 		}
 	}
 }

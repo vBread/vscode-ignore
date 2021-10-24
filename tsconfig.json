@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"importHelpers": true,
+		"lib": ["ESNext"],
+		"module": "CommonJS",
+		"outDir": "dist",
+		"removeComments": false,
+		"target": "ESNext",
+		"strict": true,
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"noImplicitOverride": true,
+		"skipLibCheck": true
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules"]
+}

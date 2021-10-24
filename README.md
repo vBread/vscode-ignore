@@ -2,17 +2,50 @@
 
 Adds syntax highlighting for the following `.ignore` files:
 
-- `.gitignore`
-- `.npmignore`
+- `.alexignore`
+- `.bazelignore`
+- `.boringignore`
+- `.bzrignore`
+- `.cfignore`
+- `.chefignore`
+- `.deployignore`
 - `.dockerignore`
-- `.vscodeignore`
-- `.prettierignore`
+- `.ebignore`
+- `.eleventyignore`
 - `.eslintignore`
+- `.flooignore`
+- `.gcloudignore`
+- `.gitignore`
+- `.helmignore`
+- `.hgignore`
+- `.jpmignore`
+- `.jshintignore`
+- `.markdownlintignore`
+- `.mtn-ignore`
+- `.nodemonignore`
+- `.npmignore`
+- `.nuxtignore`
+- `.p4ignore`
+- `.prettierignore`
+- `.slugignore`
+- `.solhint`
 - `.stylelintignore`
+- `.stylintignore`
+- `.swagger-codegen-ignore`
+- `.stignore`
+- `.tfignore`
+- `.tokeignore`
+- `.upignore`
+- `.vercelignore`
+- `.vscodeignore`
+- `.yarnignore`
 
-## Preview
+## TODO
 
-## Scopes
-
-| Scope | Regex | Example |
-|-------|-------|---------|
+- [ ] Diagnostics
+  - [ ] Duplicate paths
+  - [ ] Matches
+  - [ ] Invalid patterns
+- [ ] Providers
+  - [x] Path completions
+  - [ ] Path links

@@ -1,18 +1,33 @@
 {
 	"name": "vscode-ignore",
 	"displayName": "vscode-ignore",
-	"description": "Syntax highlighting for .ignore files",
-	"version": "1.0.0",
+	"description": "Language features for .ignore files",
+	"icon": "assets/dot-ignore.png",
+	"main": "./dist/extension.js",
+	"version": "2.0.0",
 	"publisher": "Breadnaught",
 	"engines": {
-		"vscode": "^1.54.0"
+		"vscode": "^1.61.0"
+	},
+	"scripts": {
+		"build": "rimraf dist && tsc -b",
+		"watch": "tsc --watch"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/vBread/vscode-ignore.git"
+		"url": "https://github.com/xiBread/vscode-ignore.git"
 	},
 	"categories": [
 		"Programming Languages"
+	],
+	"keywords": [
+		"ignore",
+		"template"
+	],
+	"activationEvents": [
+		"onLanguage:ignore",
+		"onCommand:ignore.newFile",
+		"onCommand:ignore.ignoreFile"
 	],
 	"contributes": {
 		"languages": [
@@ -22,13 +37,43 @@
 					"Ignore"
 				],
 				"extensions": [
-					".gitignore",
-					".npmignore",
+					".alexignore",
+					".bazelignore",
+					".boringignore",
+					".bzrignore",
+					".cfignore",
+					".chefignore",
+					".deployignore",
 					".dockerignore",
-					".vscodeignore",
-					".prettierignore",
+					".ebignore",
+					".eleventyignore",
 					".eslintignore",
-					".stylelintignore"
+					".flooignore",
+					".gcloudignore",
+					".gitignore",
+					".helmignore",
+					".hgignore",
+					".jpmignore",
+					".jshintignore",
+					".markdownlintignore",
+					".mtn-ignore",
+					".nodemonignore",
+					".npmignore",
+					".nuxtignore",
+					".p4ignore",
+					".prettierignore",
+					".slugignore",
+					".solhint",
+					".stylelintignore",
+					".stylintignore",
+					".swagger-codegen-ignore",
+					".stignore",
+					".tfignore",
+					".tokeignore",
+					".upignore",
+					".vercelignore",
+					".vscodeignore",
+					".yarnignore"
 				],
 				"configuration": "./config.json"
 			}
@@ -39,6 +84,51 @@
 				"scopeName": "source.ignore",
 				"path": "./syntaxes/ignore.tmLanguage.json"
 			}
+		],
+		"configuration": {
+			"title": "Ignore",
+			"properties": {
+				"ignore.alwaysOverwriteExistingFiles": {
+					"type": "boolean",
+					"default": false,
+					"description": "Always overwrite existing ignore files instead of asking."
+				}
+			}
+		},
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "ignore.newFile",
+					"when": "!resourceLangId",
+					"group": "navigation"
+				},
+				{
+					"command": "ignore.ignoreFile",
+					"when": "!explorerResourceIsFolder",
+					"group": "2_workspace"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "ignore.ignoreFile",
+				"title": "Ignore: Ignore File"
+			},
+			{
+				"command": "ignore.newFile",
+				"title": "Ignore: New File"
+			}
 		]
+	},
+	"devDependencies": {
+		"@types/node": "^16.11.1",
+		"@types/vscode": "^1.61.0",
+		"prettier": "^2.4.1",
+		"tslib": "^2.3.1",
+		"typescript": "^4.4.4"
+	},
+	"dependencies": {
+		"@octokit/request": "^5.6.2",
+		"ts-dedent": "^2.2.0"
 	}
 }

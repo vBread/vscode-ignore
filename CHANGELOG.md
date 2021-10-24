@@ -1,9 +1,13 @@
 # Change Log
 
-All notable changes to the "vscode-ignore" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
+## 1.0.0
 
 - Initial release
+
+## 2.0.0
+
+- Added support for more ignore files
+- Added 2 commands; `Ignore: New File` and `Ignore: Ignore File`
+- Added path completion
+- Added completion for Git pathspec signatures
+- Improved syntax highlighting
