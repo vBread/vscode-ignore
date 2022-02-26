@@ -11,3 +11,7 @@
 - Added path completion
 - Added completion for Git pathspec signatures
 - Improved syntax highlighting
+
+## 2.0.1
+
+- Fix dependency issue
