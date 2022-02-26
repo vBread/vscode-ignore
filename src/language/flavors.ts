@@ -8,7 +8,7 @@ function createFlavor(name: string, extension = name): IgnoreLanguage {
 }
 
 export const flavors = [
-	createFlavor('alex'),
+	createFlavor('Alex'),
 	createFlavor('Bazaar', 'bzr'),
 	createFlavor('Bazel'),
 	createFlavor('Concurrent Versions System', 'cvs'),
