@@ -4,7 +4,7 @@
 	"description": "Language features for .ignore files",
 	"icon": "assets/dot-ignore.png",
 	"main": "./dist/extension.js",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"publisher": "Breadnaught",
 	"engines": {
 		"vscode": "^1.64.0"
