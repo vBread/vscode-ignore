@@ -1,15 +1,17 @@
 {
 	"name": "vscode-ignore",
-	"displayName": "vscode-ignore",
+	"displayName": "VSCode Ignore",
 	"description": "Language features for .ignore files",
 	"icon": "assets/dot-ignore.png",
 	"main": "./dist/extension.js",
-	"version": "2.0.2",
+	"version": "2.1.0",
 	"publisher": "Breadnaught",
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
 	"scripts": {
+		"vscode:prepublish": "npm run build",
 		"build": "rimraf dist && tsc -b",
 		"watch": "tsc --watch"
 	},
@@ -22,7 +24,13 @@
 	],
 	"keywords": [
 		"ignore",
-		"template"
+		"template",
+		"file",
+		"folder",
+		"path",
+		"git",
+		"directory",
+		"glob"
 	],
 	"activationEvents": [
 		"onLanguage:ignore",
@@ -121,13 +129,14 @@
 		]
 	},
 	"devDependencies": {
-		"@types/node": "^17.0.21",
+		"@types/node": "^17.0.23",
 		"@types/vscode": "^1.64.0",
-		"prettier": "^2.5.1",
-		"typescript": "^4.5.5"
+		"prettier": "^2.6.2",
+		"typescript": "^4.6.3"
 	},
 	"dependencies": {
 		"@octokit/request": "^5.6.3",
+		"fast-glob": "^3.2.11",
 		"ts-dedent": "^2.2.0",
 		"tslib": "^2.3.1"
 	}

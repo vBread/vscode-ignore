@@ -15,3 +15,7 @@
 ## 2.0.1
 
 - Fix dependency issue
+
+## 2.1.0
+
+- Added support for basic glob completions

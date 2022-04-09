@@ -1,11 +1,15 @@
-import fs from 'fs/promises';
-import { basename } from 'path';
-import { Uri, window, workspace } from 'vscode';
+import fs from "fs/promises";
+import { basename } from "path";
+import { Uri, window, workspace } from "vscode";
 
 export async function ignoreFile(uri?: Uri): Promise<void> {
-	uri ??= window.activeTextEditor!.document.uri;
+	uri ??= window.activeTextEditor?.document.uri;
 
-	const ignoreFiles = await workspace.findFiles('.*ignore');
+	if (!uri) {
+		return void (await window.showErrorMessage("No active text editor"));
+	}
+
+	const ignoreFiles = await workspace.findFiles(".*ignore");
 	const toIgnore = basename(uri.fsPath);
 
 	if (ignoreFiles.length === 1) {
@@ -28,7 +32,7 @@ export async function ignoreFile(uri?: Uri): Promise<void> {
 }
 
 async function append(file: string, path: string): Promise<void> {
-	const content = (await fs.readFile(file)).toString('utf8');
+	const content = (await fs.readFile(file)).toString("utf8");
 
-	await fs.appendFile(file, `${content === '' ? '' : '\n'}${path}`);
+	await fs.appendFile(file, `${content === "" ? "" : "\n"}${path}`);
 }

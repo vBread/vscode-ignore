@@ -1,2 +1,2 @@
-export * from './ignoreFile';
-export * from './newFile';
+export * from "./ignoreFile";
+export * from "./newFile";
