@@ -4,7 +4,8 @@ interface IgnoreLanguage {
 }
 
 const LANGUAGE_FLAVORS = [
-	["Alex"],
+	["alex"],
+	["AWS Elastic Beanstalk", "eb"],
 	["Bazaar", "bzr"],
 	["Concurrent Versions System", "cvs"],
 	["Chef"],
@@ -13,23 +14,22 @@ const LANGUAGE_FLAVORS = [
 	["DeployHQ", "deploy"],
 	["Docker"],
 	["ESLint"],
-	["Elastic Beanstalk", "eb"],
 	["Eleventy"],
 	["Floobits", "floo"],
 	["Git"],
 	["Google Cloud", "gcloud"],
+	["Heroku Slug Compiler", "slug"],
 	["JSHint"],
-	["Jetpack", "jpm"],
-	["Kubernetes Helm", "helm"],
+	["Helm"],
 	["markdownlint"],
 	["Mercurial", "hg"],
 	["Monotone", "mtn-"],
+	["Mozilla Jetpack", "jpm"],
 	["npm"],
-	["Nodemon"],
+	["nodemon"],
 	["Nuxt"],
 	["Perforce", "p4"],
 	["Prettier"],
-	["Heroku Slug Compiler", "slug"],
 	["Solhint"],
 	["Stylelint"],
 	["Stylint"],
@@ -38,10 +38,10 @@ const LANGUAGE_FLAVORS = [
 	["Team Foundation", "tf"],
 	["Tokei"],
 	["Up"],
-	["Visual Studio Code", "vscode"],
 	["Vercel"],
+	["VSCode Extension API", "vscode"],
 	["Yarn"],
-];
+] as const;
 
 export const flavors = LANGUAGE_FLAVORS.map<IgnoreLanguage>(([name, ext]) => ({
 	filename: `.${(ext ?? name).toLowerCase()}ignore`,
