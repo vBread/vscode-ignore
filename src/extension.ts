@@ -10,6 +10,6 @@ export function activate(context: ExtensionContext): void {
 	context.subscriptions.push(
 		languages.registerCompletionItemProvider(selector, { provideCompletionItems }, ...TRIGGER_CHARACTERS),
 		commands.registerCommand("ignore.newFile", cmds.newFile),
-		commands.registerCommand("ignore.ignoreFile", cmds.ignoreFile)
+		commands.registerCommand("ignore.ignorePath", cmds.ignorePath)
 	);
 }

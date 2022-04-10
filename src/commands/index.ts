@@ -1,2 +1,2 @@
-export * from "./ignoreFile";
+export * from "./ignorePath";
 export * from "./newFile";
