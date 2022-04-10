@@ -35,7 +35,7 @@
 	"activationEvents": [
 		"onLanguage:ignore",
 		"onCommand:ignore.newFile",
-		"onCommand:ignore.ignoreFile"
+		"onCommand:ignore.ignorePath"
 	],
 	"contributes": {
 		"languages": [
@@ -96,31 +96,46 @@
 		"configuration": {
 			"title": "Ignore",
 			"properties": {
-				"ignore.alwaysOverwriteExistingFiles": {
-					"type": "boolean",
-					"default": false,
-					"description": "Always overwrite existing ignore files instead of asking."
+				"ignore.newFileConflictBehavior": {
+					"type": "string",
+					"enum": [
+						"overwrite",
+						"append",
+						"prompt"
+					],
+					"enumDescriptions": [
+						"Always overwrite existing ignore files.",
+						"Always append to existing ignore files.",
+						"Always prompt what to do when an ignore file already exists."
+					],
+					"default": "prompt",
+					"description": "Choose the default behavior when attempting to create a new ignore file and an ignore file already exists."
 				}
 			}
 		},
 		"menus": {
 			"explorer/context": [
 				{
-					"command": "ignore.newFile",
-					"when": "!resourceLangId",
-					"group": "navigation"
+					"command": "ignore.ignorePath",
+					"when": "resourceLangId != unknown",
+					"group": "2_workspace"
 				},
 				{
-					"command": "ignore.ignoreFile",
-					"when": "!explorerResourceIsFolder",
+					"command": "ignore.newFile",
+					"when": "resourceLangId != unknown",
 					"group": "2_workspace"
+				},
+				{
+					"command": "ignore.newFile",
+					"when": "resourceLangId == unknown",
+					"group": "2_navigation"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "ignore.ignoreFile",
-				"title": "Ignore: Ignore File"
+				"command": "ignore.ignorePath",
+				"title": "Ignore: Ignore Path"
 			},
 			{
 				"command": "ignore.newFile",
