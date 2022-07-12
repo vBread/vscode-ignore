@@ -96,6 +96,11 @@
 		"configuration": {
 			"title": "Ignore",
 			"properties": {
+				"ignore.promptChooseTemplateOnEmptyGitignore": {
+					"type": "boolean",
+					"default": false,
+					"description": "Launches the choose template prompt when you open an empty .gitignore file."
+				},
 				"ignore.newFileConflictBehavior": {
 					"type": "string",
 					"enum": [
@@ -133,6 +138,10 @@
 			]
 		},
 		"commands": [
+			{
+				"command": "ignore.choose-template",
+				"title": "Ignore: Choose Template"
+			},
 			{
 				"command": "ignore.ignorePath",
 				"title": "Ignore: Ignore Path"
