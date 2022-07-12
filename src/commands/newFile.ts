@@ -69,7 +69,7 @@ export async function newFile(uri?: Uri): Promise<void> {
 				await fs.appendFile(target, source);
 			}
 
-			await window.showTextDocument(Uri.parse(target));
+			await window.showTextDocument(Uri.file(target));
 		}
 	}
 }
