@@ -95,7 +95,7 @@
 		"signature": {
 			"patterns": [
 				{
-					"name": "meta.tag.signature.ignore",
+					"name": "constant.character.set.ignore",
 					"begin": "^(:)(\\()(?=.*?\\))",
 					"end": "(?<!\\\\)\\)|(?=\\s*$)",
 					"beginCaptures": {
@@ -194,7 +194,7 @@
 					"match": "^(:)([!^]+)",
 					"captures": {
 						"1": {
-							"name": "punctuation.definition.signature.ignore"
+							"name": "invalid"
 						},
 						"2": {
 							"name": "keyword.operator.logical.ignore"
