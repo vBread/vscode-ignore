@@ -58,11 +58,11 @@
 					"match": "\\*\\*|[*?]"
 				},
 				{
-					"name": "string.quoted.other",
+					"name": "keyword.control.ignore",
 					"match": "/"
 				},
 				{
-					"name": "string.quoted.other",
+					"name": "keyword.control.ignore",
 					"match": "\\."
 				},
 				{
@@ -85,10 +85,14 @@
 					"name": "markup.punctuation.quote.beginning.end.ignore"
 				}
 			},
-			"contentName": "constant.other.character-class.range.ignore",
+			"contentName": "string.regexp.ignore",
 			"patterns": [
 				{
 					"include": "#escape"
+				},
+				{
+					"name": "constant.character",
+					"match": "-"
 				}
 			]
 		},
