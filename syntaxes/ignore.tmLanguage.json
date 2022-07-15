@@ -1,46 +1,7 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "ignore",
+	"name": "Ignore",
 	"scopeName": "source.ignore",
-	"fileTypes": [
-		".alexignore",
-		".bazelignore",
-		".boringignore",
-		".bzrignore",
-		".cfignore",
-		".chefignore",
-		".deployignore",
-		".dockerignore",
-		".ebignore",
-		".eleventyignore",
-		".eslintignore",
-		".flooignore",
-		".gcloudignore",
-		".gitignore",
-		".helmignore",
-		".hgignore",
-		".jpmignore",
-		".jshintignore",
-		".markdownlintignore",
-		".mtn-ignore",
-		".nodemonignore",
-		".npmignore",
-		".nuxtignore",
-		".p4ignore",
-		".prettierignore",
-		".slugignore",
-		".solhint",
-		".stylelintignore",
-		".stylintignore",
-		".swagger-codegen-ignore",
-		".stignore",
-		".tfignore",
-		".tokeignore",
-		".upignore",
-		".vercelignore",
-		".vscodeignore",
-		".yarnignore"
-	],
 	"patterns": [
 		{
 			"include": "#main"
@@ -49,10 +10,18 @@
 	"repository": {
 		"main": {
 			"patterns": [
-				{ "include": "#comment" },
-				{ "include": "#signature" },
-				{ "include": "#pathspec" },
-				{ "include": "#escape" }
+				{
+					"include": "#comment"
+				},
+				{
+					"include": "#signature"
+				},
+				{
+					"include": "#pathspec"
+				},
+				{
+					"include": "#escape"
+				}
 			]
 		},
 		"comment": {
@@ -61,7 +30,7 @@
 			"end": "$",
 			"beginCaptures": {
 				"0": {
-					"name": "punctuation.defintion.comment.ignore"
+					"name": "markup.punctuation.quote.beginning"
 				}
 			}
 		},
@@ -70,71 +39,87 @@
 			"match": "\\\\."
 		},
 		"pathspec": {
-			"name": "meta.pathspec.ignore",
+			"name": "meta.type.name.ignore",
 			"begin": "(?=[^#\\s])",
 			"end": "$|(?=#)",
 			"patterns": [
-				{ "include": "#escape" },
-				{ "include": "#range" },
 				{
-					"name": "keyword.operator.logical.ignore",
+					"include": "#escape"
+				},
+				{
+					"include": "#range"
+				},
+				{
+					"name": "keyword.operator.new.logical.ignore",
 					"match": "\\G!"
 				},
 				{
-					"name": "keyword.operator.wildcard.ignore",
+					"name": "keyword.operator.new.wildcard.ignore",
 					"match": "\\*\\*|[*?]"
 				},
 				{
-					"name": "punctuation.separator.directory.ignore",
+					"name": "string.quoted.other",
 					"match": "/"
 				},
 				{
-					"name": "entity.other.path.ignore",
+					"name": "string.quoted.other",
+					"match": "\\."
+				},
+				{
+					"name": "entity.other.attribute-name.path.ignore",
 					"match": "[^\\[\\]\\\\*?#/\\s]+"
 				}
 			]
 		},
 		"range": {
-			"name": "constant.other.character-class.set.ignore",
+			"name": "constant.character.set.ignore",
 			"begin": "\\[",
 			"end": "\\]|(?=$)",
 			"beginCaptures": {
 				"0": {
-					"name": "punctuation.definition.character-class.begin.ignore"
+					"name": "markup.punctuation.quote.beginning.ignore"
 				}
 			},
 			"endCaptures": {
 				"0": {
-					"name": "punctuation.definition.character-class.end.ignore"
+					"name": "markup.punctuation.quote.beginning.end.ignore"
 				}
 			},
 			"contentName": "constant.other.character-class.range.ignore",
-			"patterns": [{ "include": "#escape" }]
+			"patterns": [
+				{
+					"include": "#escape"
+				}
+			]
 		},
 		"signature": {
 			"patterns": [
 				{
-					"name": "meta.pathspec.signature.ignore",
+					"name": "constant.character.set.ignore",
 					"begin": "^(:)(\\()(?=.*?\\))",
 					"end": "(?<!\\\\)\\)|(?=\\s*$)",
 					"beginCaptures": {
 						"1": {
-							"name": "keyword.operator.signature.ignore"
+							"name": "keyword.operator.new.signature.ignore"
 						},
 						"2": {
-							"name": "punctuation.definition.signature.begin.ignore"
+							"name": "markup.punctuation.quote.beginning.end.ignore"
 						}
 					},
 					"endCaptures": {
 						"0": {
-							"name": "punctuation.definition.signature.end.ignore"
+							"name": "markup.punctuation.quote.beginning.end.ignore"
 						}
 					},
 					"patterns": [
-						{ "include": "#escape" },
+						{
+							"include": "#escape"
+						},
 						{
 							"patterns": [
-								{ "include": "etc#comma" },
+								{
+									"include": "etc#comma"
+								},
 								{
 									"name": "meta.attribute-list.ignore",
 									"begin": "(?:\\G|(?<=,|\\())(attr)(:)",
@@ -144,7 +129,7 @@
 											"name": "keyword.control.ignore"
 										},
 										"2": {
-											"name": "punctuation.separator.attribute.ignore"
+											"name": "markup.punctuation.quote.beginning.end.ignore"
 										}
 									},
 									"patterns": [
@@ -162,14 +147,22 @@
 												},
 												"2": {
 													"name": "variable.parameter.ignore",
-													"patterns": [{ "include": "#escape" }]
+													"patterns": [
+														{
+															"include": "#escape"
+														}
+													]
 												},
 												"3": {
 													"name": "keyword.operator.assignment.ignore"
 												},
 												"4": {
 													"name": "constant.language.other.ignore",
-													"patterns": [{ "include": "#escape" }]
+													"patterns": [
+														{
+															"include": "#escape"
+														}
+													]
 												}
 											}
 										}
@@ -197,11 +190,11 @@
 					]
 				},
 				{
-					"name": "meta.pathspec.signature.ignore",
+					"name": "meta.tag.signature.ignore",
 					"match": "^(:)([!^]+)",
 					"captures": {
 						"1": {
-							"name": "punctuation.definition.signature.ignore"
+							"name": "invalid"
 						},
 						"2": {
 							"name": "keyword.operator.logical.ignore"

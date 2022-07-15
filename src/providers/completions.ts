@@ -1,15 +1,12 @@
-import glob from "fast-glob";
+import { existsSync } from 'fs';
 import { readdir, stat } from "fs/promises";
-import path from "path";
+import { basename, extname, resolve } from "path";
 import {
-	type CancellationToken,
-	type CompletionContext,
-	type CompletionItem,
 	CompletionItemKind as Kind,
 	Position,
-	Range,
-	type TextDocument,
-	workspace,
+	Range, workspace, type CancellationToken,
+	type CompletionContext,
+	type CompletionItem, type TextDocument
 } from "vscode";
 
 const GIT_MAGIC_SIGNATURES = ["top", "icase", "literal", "glob", "attr", "exclude"];
@@ -22,10 +19,10 @@ export async function provideCompletionItems(
 ): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	const line = doc.getText(doc.lineAt(pos).range);
-	const prevChar = line[pos.character - 2];
+	const line = doc.getText(doc.lineAt(pos).range).trim();
+	const lineWithoutExclamationMark = line.replace(/!/g, '')
 
-	let start = new Position(pos.line, line.lastIndexOf("/") + 1);
+	const prevChar = line[pos.character - 2];
 
 	if (ctx.triggerCharacter === "(" && prevChar === ":") {
 		return GIT_MAGIC_SIGNATURES.map((signature) => ({
@@ -34,11 +31,10 @@ export async function provideCompletionItems(
 		}));
 	}
 
-	if (ctx.triggerCharacter === "*" && prevChar !== "*") {
-		const files = await workspace.findFiles(line, undefined, undefined, token);
-		const exts = new Set(files.map((file) => path.extname(file.fsPath)));
+	if (line.endsWith("*") && prevChar !== "*") {
 
-		start = new Position(pos.line, line.lastIndexOf("*") + 1);
+		const files = await workspace.findFiles(lineWithoutExclamationMark, undefined, undefined, token);
+		const exts = new Set(files.map((file) => extname(file.fsPath)));
 
 		for (const ext of exts) {
 			completions.push({
@@ -46,65 +42,67 @@ export async function provideCompletionItems(
 				kind: Kind.Constant,
 				sortText: ext,
 				insertText: ext,
-				range: new Range(start, pos),
+				range: new Range(new Position(pos.line, line.lastIndexOf("*") + 1), pos),
 			});
 		}
 
 		return completions;
 	}
 
-	const ws = workspace.getWorkspaceFolder(doc.uri);
-	if (!ws) return [];
+	const folder = resolve(doc.uri.fsPath, '../', /\/|\./.test(line) ? lineWithoutExclamationMark : '');
 
-	const normalized = path.normalize(line);
-	const parent = normalized.startsWith(path.sep) ? ws.uri.fsPath : path.dirname(doc.fileName);
+	if (!existsSync(folder)) return [];
 
-	const folder = path.join(parent, normalized);
+	const files = await readdir(folder);
 
-	try {
-		const entries = await readdir(folder);
-
-		for (const entry of entries) {
-			const isFile = (await stat(path.join(folder, entry))).isFile();
-
-			completions.push({
-				label: entry,
-				kind: isFile ? Kind.File : Kind.Folder,
-				sortText: `${Number(isFile)}_${entry}`,
-				insertText: entry,
-				range: new Range(start, pos),
-			});
-		}
-	} catch {
-		if (!line.includes("*") && !line.endsWith("/")) {
-			return [];
-		}
-
-		const entries = await glob(`${line}*`, {
-			cwd: parent,
-			objectMode: true,
-			onlyFiles: false,
-		});
-
-		for (const entry of entries) {
-			// TODO: Find a better way to filter immediate children
-			if (entry.path.match(/\//g)!.length !== line.match(/\*\*/g)!.length + 1) {
-				continue;
-			}
-
-			const isFile = entry.dirent.isFile();
-
-			completions.push({
-				label: entry.name,
-				kind: isFile ? Kind.File : Kind.Folder,
-				sortText: `${Number(isFile)}_${entry.name}`,
-				insertText: entry.name,
-				range: new Range(start, pos),
-			});
-		}
-
-		return completions;
+	if (line === '') {
+		completions.push(
+			{
+				label: '!',
+				kind: Kind.Value,
+				command: {
+					title: 'Trigger Completion',
+					command: 'editor.action.triggerSuggest'
+				}
+			},
+		)
 	}
 
+	if (line.endsWith('/') || line === '') {
+		completions.push(
+			{ label: '*', kind: Kind.Value },
+			{ label: '**', kind: Kind.Value }
+		)
+	} else if (line.endsWith('.')) {
+		completions.push(
+			{ label: '*', insertText: '/*', kind: Kind.Value },
+			{ label: '**', insertText: '/**', kind: Kind.Value }
+		)
+	}
+
+	for (let i = 0; i < files.length; i++) {
+		const fileName = files[i];
+		if (fileName === basename(doc.fileName)) {
+			continue;
+		}
+		try {
+			const stats = await stat(resolve(folder, fileName));
+			const isDir = stats.isDirectory();
+
+			const insertText = (isDir ? `${fileName}/` : fileName)
+
+			completions.push({
+				label: fileName,
+				kind: isDir ? Kind.Folder : Kind.File,
+				insertText: line.endsWith('.') ? `/${insertText}` : insertText,
+				command: isDir
+					? {
+						title: 'Trigger Completion',
+						command: 'editor.action.triggerSuggest'
+					}
+					: undefined
+			});
+		} catch { }
+	}
 	return completions;
 }

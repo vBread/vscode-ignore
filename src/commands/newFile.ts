@@ -1,11 +1,8 @@
-import { request } from "@octokit/request";
 import fs from "fs/promises";
 import path from "path";
 import { Uri, window, workspace } from "vscode";
 import { flavors } from "../language/flavors";
-
-const templates: string[] = [];
-const cache = new Map<string, string>();
+import { fetchTemplate } from './template';
 
 export async function newFile(uri?: Uri): Promise<void> {
 	uri ??= workspace.getWorkspaceFolder(window.activeTextEditor!.document.uri)?.uri;
@@ -26,19 +23,7 @@ export async function newFile(uri?: Uri): Promise<void> {
 	let source = "";
 
 	if (type === "Template") {
-		if (!templates.length) {
-			templates.push(...(await request("GET /gitignore/templates")).data);
-		}
-
-		const name = await window.showQuickPick(templates, { placeHolder: "Select a template" });
-		if (!name) return;
-
-		if (cache.has(name)) {
-			source = cache.get(name)!;
-		} else {
-			source = (await request("GET /gitignore/templates/{name}", { name })).data.source;
-			cache.set(name, source);
-		}
+		source = await fetchTemplate() ?? ''
 	}
 
 	const filename = (
@@ -84,7 +69,7 @@ export async function newFile(uri?: Uri): Promise<void> {
 				await fs.appendFile(target, source);
 			}
 
-			await window.showTextDocument(Uri.parse(target));
+			await window.showTextDocument(Uri.file(target));
 		}
 	}
 }
