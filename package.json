@@ -1,8 +1,8 @@
 {
 	"name": "vscode-ignore",
 	"displayName": "VSCode Ignore",
-	"description": "Language features for .ignore files",
-	"icon": "assets/dot-ignore.png",
+	"description": "Language features for `.*ignore` files",
+	"icon": "./assets/dot-ignore.png",
 	"main": "./dist/extension.js",
 	"version": "2.1.0",
 	"publisher": "Breadnaught",
@@ -13,7 +13,8 @@
 	"scripts": {
 		"vscode:prepublish": "npm run build",
 		"build": "rimraf dist && tsc -b",
-		"watch": "tsc --watch"
+		"watch": "tsc --watch",
+		"lint": "prettier --write \"src/**\" && eslint \"src/**\" --fix"
 	},
 	"repository": {
 		"type": "git",
@@ -152,16 +153,20 @@
 			}
 		]
 	},
-	"devDependencies": {
-		"@types/node": "^17.0.23",
-		"@types/vscode": "^1.64.0",
-		"prettier": "^2.6.2",
-		"typescript": "^4.6.3"
-	},
 	"dependencies": {
-		"@octokit/request": "^5.6.3",
+		"@octokit/request": "^6.2.0",
 		"fast-glob": "^3.2.11",
 		"ts-dedent": "^2.2.0",
-		"tslib": "^2.3.1"
+		"tslib": "^2.4.0"
+	},
+	"devDependencies": {
+		"@types/node": "^18.0.4",
+		"@types/vscode": "^1.69.0",
+		"@typescript-eslint/eslint-plugin": "^5.30.6",
+		"@typescript-eslint/parser": "^5.30.6",
+		"eslint": "^8.19.0",
+		"eslint-config-prettier": "^8.5.0",
+		"prettier": "^2.7.1",
+		"typescript": "^4.7.4"
 	}
 }

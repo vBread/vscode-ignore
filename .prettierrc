@@ -1,7 +1,6 @@
 {
-	"printWidth": 120,
+	"printWidth": 100,
 	"tabWidth": 4,
 	"useTabs": true,
-	"quoteProps": "as-needed",
 	"endOfLine": "lf"
 }

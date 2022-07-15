@@ -2,10 +2,13 @@ import fs from "fs/promises";
 import path from "path";
 import { Uri, window, workspace } from "vscode";
 import { flavors } from "../language/flavors";
-import { fetchTemplate } from './template';
+import { fetchTemplate } from "./template";
 
 export async function newFile(uri?: Uri): Promise<void> {
-	uri ??= workspace.getWorkspaceFolder(window.activeTextEditor!.document.uri)?.uri;
+	const active = window.activeTextEditor?.document.uri;
+	if (!active) return;
+
+	uri ??= workspace.getWorkspaceFolder(active)?.uri;
 	if (!uri) return;
 
 	const type = (
@@ -13,7 +16,10 @@ export async function newFile(uri?: Uri): Promise<void> {
 			[
 				{ label: "Empty", detail: "Create an empty file" },
 
-				{ label: "Template", detail: "Create a file from GitHub's collection of .gitignore templates" },
+				{
+					label: "Template",
+					detail: "Create a file from GitHub's collection of .gitignore templates",
+				},
 			],
 			{ placeHolder: "Select a creation method" }
 		)
@@ -23,7 +29,7 @@ export async function newFile(uri?: Uri): Promise<void> {
 	let source = "";
 
 	if (type === "Template") {
-		source = await fetchTemplate() ?? ''
+		source = (await fetchTemplate()) ?? "";
 	}
 
 	const filename = (
@@ -59,6 +65,7 @@ export async function newFile(uri?: Uri): Promise<void> {
 		throw config.newFileConflictBehavior;
 	} catch (error: unknown) {
 		if (error instanceof Error) {
+			// eslint-disable-next-line no-ex-assign
 			error = "overwrite";
 		}
 

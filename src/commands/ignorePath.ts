@@ -13,7 +13,9 @@ export async function ignorePath(uri?: Uri): Promise<void> {
 	const toIgnore = path.basename(uri.fsPath);
 
 	if (!ignoreFiles.length) {
-		return void (await window.showInformationMessage("No .ignore files found in the current workspace"));
+		return void (await window.showInformationMessage(
+			"No .ignore files found in the current workspace"
+		));
 	}
 
 	if (ignoreFiles.length === 1) {

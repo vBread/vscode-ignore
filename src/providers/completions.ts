@@ -1,12 +1,15 @@
-import { existsSync } from 'fs';
+import { existsSync } from "fs";
 import { readdir, stat } from "fs/promises";
 import { basename, extname, resolve } from "path";
 import {
 	CompletionItemKind as Kind,
 	Position,
-	Range, workspace, type CancellationToken,
+	Range,
+	workspace,
+	type CancellationToken,
 	type CompletionContext,
-	type CompletionItem, type TextDocument
+	type CompletionItem,
+	type TextDocument,
 } from "vscode";
 
 const GIT_MAGIC_SIGNATURES = ["top", "icase", "literal", "glob", "attr", "exclude"];
@@ -20,7 +23,7 @@ export async function provideCompletionItems(
 	const completions: CompletionItem[] = [];
 
 	const line = doc.getText(doc.lineAt(pos).range).trim();
-	const lineWithoutExclamationMark = line.replace(/!/g, '')
+	const lineWithoutExclamationMark = line.replace(/!/g, "");
 
 	const prevChar = line[pos.character - 2];
 
@@ -32,8 +35,12 @@ export async function provideCompletionItems(
 	}
 
 	if (line.endsWith("*") && prevChar !== "*") {
-
-		const files = await workspace.findFiles(lineWithoutExclamationMark, undefined, undefined, token);
+		const files = await workspace.findFiles(
+			lineWithoutExclamationMark,
+			undefined,
+			undefined,
+			token
+		);
 		const exts = new Set(files.map((file) => extname(file.fsPath)));
 
 		for (const ext of exts) {
@@ -49,35 +56,34 @@ export async function provideCompletionItems(
 		return completions;
 	}
 
-	const folder = resolve(doc.uri.fsPath, '../', /\/|\./.test(line) ? lineWithoutExclamationMark : '');
+	const folder = resolve(
+		doc.uri.fsPath,
+		"../",
+		/\/|\./.test(line) ? lineWithoutExclamationMark : ""
+	);
 
 	if (!existsSync(folder)) return [];
 
 	const files = await readdir(folder);
 
-	if (line === '') {
-		completions.push(
-			{
-				label: '!',
-				kind: Kind.Value,
-				command: {
-					title: 'Trigger Completion',
-					command: 'editor.action.triggerSuggest'
-				}
+	if (line === "") {
+		completions.push({
+			label: "!",
+			kind: Kind.Value,
+			command: {
+				title: "Trigger Completion",
+				command: "editor.action.triggerSuggest",
 			},
-		)
+		});
 	}
 
-	if (line.endsWith('/') || line === '') {
+	if (line.endsWith("/") || line === "") {
+		completions.push({ label: "*", kind: Kind.Value }, { label: "**", kind: Kind.Value });
+	} else if (line.endsWith(".")) {
 		completions.push(
-			{ label: '*', kind: Kind.Value },
-			{ label: '**', kind: Kind.Value }
-		)
-	} else if (line.endsWith('.')) {
-		completions.push(
-			{ label: '*', insertText: '/*', kind: Kind.Value },
-			{ label: '**', insertText: '/**', kind: Kind.Value }
-		)
+			{ label: "*", insertText: "/*", kind: Kind.Value },
+			{ label: "**", insertText: "/**", kind: Kind.Value }
+		);
 	}
 
 	for (let i = 0; i < files.length; i++) {
@@ -89,20 +95,20 @@ export async function provideCompletionItems(
 			const stats = await stat(resolve(folder, fileName));
 			const isDir = stats.isDirectory();
 
-			const insertText = (isDir ? `${fileName}/` : fileName)
+			const insertText = isDir ? `${fileName}/` : fileName;
 
 			completions.push({
 				label: fileName,
 				kind: isDir ? Kind.Folder : Kind.File,
-				insertText: line.endsWith('.') ? `/${insertText}` : insertText,
+				insertText: line.endsWith(".") ? `/${insertText}` : insertText,
 				command: isDir
 					? {
-						title: 'Trigger Completion',
-						command: 'editor.action.triggerSuggest'
-					}
-					: undefined
+							title: "Trigger Completion",
+							command: "editor.action.triggerSuggest",
+					  }
+					: undefined,
 			});
-		} catch { }
+		} catch {}
 	}
 	return completions;
 }
