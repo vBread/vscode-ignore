@@ -35,7 +35,7 @@ export default async function (doc: TextDocument): Promise<DocumentLink[]> {
 				target,
 			});
 		} catch {
-			return [];
+			continue;
 		}
 	}
 
