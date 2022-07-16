@@ -8,7 +8,7 @@
 	"publisher": "Breadnaught",
 	"license": "MIT",
 	"engines": {
-		"vscode": "^1.64.0"
+		"vscode": "^1.68.0"
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run build",
@@ -97,11 +97,6 @@
 		"configuration": {
 			"title": "Ignore",
 			"properties": {
-				"ignore.promptChooseTemplateOnEmptyGitignore": {
-					"type": "boolean",
-					"default": false,
-					"description": "Launches the choose template prompt when you open an empty .gitignore file."
-				},
 				"ignore.newFileConflictBehavior": {
 					"type": "string",
 					"enum": [
@@ -116,6 +111,11 @@
 					],
 					"default": "prompt",
 					"description": "Choose the default behavior when attempting to create a new ignore file and an ignore file already exists."
+				},
+				"ignore.promptOnEmptyFile": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show the choose template prompt when an empty ignore file is detected."
 				}
 			}
 		},
@@ -140,7 +140,7 @@
 		},
 		"commands": [
 			{
-				"command": "ignore.choose-template",
+				"command": "ignore.chooseTemplate",
 				"title": "Ignore: Choose Template"
 			},
 			{
