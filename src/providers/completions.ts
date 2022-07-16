@@ -1,10 +1,11 @@
-import { existsSync } from "fs";
-import { readdir, stat } from "fs/promises";
-import { basename, extname, resolve } from "path";
+import fs from "fs";
+import path from "path/posix";
 import {
 	CompletionItemKind as Kind,
+	FileType,
 	Position,
 	Range,
+	Uri,
 	workspace,
 	type CancellationToken,
 	type CompletionContext,
@@ -12,9 +13,12 @@ import {
 	type TextDocument,
 } from "vscode";
 
-const GIT_MAGIC_SIGNATURES = ["top", "icase", "literal", "glob", "attr", "exclude"];
+const triggerSuggest = {
+	title: "Trigger Suggest",
+	command: "editor.action.triggerSuggest",
+};
 
-export async function provideCompletionItems(
+export default async function (
 	doc: TextDocument,
 	pos: Position,
 	token: CancellationToken,
@@ -23,92 +27,68 @@ export async function provideCompletionItems(
 	const completions: CompletionItem[] = [];
 
 	const line = doc.getText(doc.lineAt(pos).range).trim();
-	const lineWithoutExclamationMark = line.replace(/!/g, "");
-
 	const prevChar = line[pos.character - 2];
 
+	// TODO: Handle signature checking better
 	if (ctx.triggerCharacter === "(" && prevChar === ":") {
-		return GIT_MAGIC_SIGNATURES.map((signature) => ({
+		return ["top", "icase", "literal", "glob", "attr", "exclude"].map((signature) => ({
 			label: signature,
 			kind: Kind.Keyword,
 		}));
 	}
 
-	if (line.endsWith("*") && prevChar !== "*") {
-		const files = await workspace.findFiles(
-			lineWithoutExclamationMark,
-			undefined,
-			undefined,
-			token
-		);
-		const exts = new Set(files.map((file) => extname(file.fsPath)));
-
-		for (const ext of exts) {
-			completions.push({
-				label: ext,
-				kind: Kind.Constant,
-				sortText: ext,
-				insertText: ext,
-				range: new Range(new Position(pos.line, line.lastIndexOf("*") + 1), pos),
-			});
-		}
-
-		return completions;
-	}
-
-	const folder = resolve(
-		doc.uri.fsPath,
-		"../",
-		/\/|\./.test(line) ? lineWithoutExclamationMark : ""
-	);
-
-	if (!existsSync(folder)) return [];
-
-	const files = await readdir(folder);
-
 	if (line === "") {
 		completions.push({
 			label: "!",
-			kind: Kind.Value,
-			command: {
-				title: "Trigger Completion",
-				command: "editor.action.triggerSuggest",
-			},
+			kind: Kind.Operator,
+			command: triggerSuggest,
 		});
 	}
 
+	const globStars = [
+		{ label: "*", kind: Kind.Operator },
+		{ label: "**", kind: Kind.Operator },
+	];
+
 	if (line.endsWith("/") || line === "") {
-		completions.push({ label: "*", kind: Kind.Value }, { label: "**", kind: Kind.Value });
+		completions.push(...globStars);
 	} else if (line.endsWith(".")) {
-		completions.push(
-			{ label: "*", insertText: "/*", kind: Kind.Value },
-			{ label: "**", insertText: "/**", kind: Kind.Value }
-		);
+		completions.push(...globStars.map((star) => ({ ...star, insertText: `/${star.label}` })));
 	}
 
-	for (let i = 0; i < files.length; i++) {
-		const fileName = files[i];
-		if (fileName === basename(doc.fileName)) {
-			continue;
-		}
-		try {
-			const stats = await stat(resolve(folder, fileName));
-			const isDir = stats.isDirectory();
+	const root = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath ?? "";
 
-			const insertText = isDir ? `${fileName}/` : fileName;
+	const normalized = path.normalize(line.replace(/!/g, ""));
+	const parent = path.isAbsolute(normalized) ? root : path.dirname(doc.fileName);
+
+	let folder = path.join(parent, normalized);
+
+	if (!ctx.triggerCharacter && !fs.existsSync(folder)) {
+		folder = path.dirname(folder);
+	}
+
+	try {
+		const files = await workspace.fs.readDirectory(Uri.file(folder));
+
+		for (const [file, type] of files) {
+			if (file === path.basename(doc.fileName)) continue;
+
+			const isFile = type === FileType.File;
 
 			completions.push({
-				label: fileName,
-				kind: isDir ? Kind.Folder : Kind.File,
-				insertText: line.endsWith(".") ? `/${insertText}` : insertText,
-				command: isDir
-					? {
-							title: "Trigger Completion",
-							command: "editor.action.triggerSuggest",
-					  }
-					: undefined,
+				label: file,
+				kind: isFile ? Kind.File : Kind.Folder,
+				sortText: `${type & 1}_${file}`,
+				insertText: file + (type === FileType.File ? "" : "/"),
+				// FIXME: For some reason, adding a range causes '!' to not trigger completions
+				range: new Range(new Position(pos.line, line.lastIndexOf("/") + 1), pos),
+				command: isFile ? undefined : triggerSuggest,
 			});
-		} catch {}
+		}
+	} catch {
+		// TODO: Glob completions
+		return [];
 	}
+
 	return completions;
 }
