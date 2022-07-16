@@ -1,8 +1,3 @@
-interface IgnoreLanguage {
-	readonly filename: string;
-	readonly name: string;
-}
-
 const LANGUAGE_FLAVORS = [
 	["alex"],
 	["AWS Elastic Beanstalk", "eb"],
@@ -43,7 +38,7 @@ const LANGUAGE_FLAVORS = [
 	["Yarn"],
 ] as const;
 
-export const flavors = LANGUAGE_FLAVORS.map<IgnoreLanguage>(([name, ext]) => ({
+export const flavors = LANGUAGE_FLAVORS.map(([name, ext]) => ({
 	filename: `.${(ext ?? name).toLowerCase()}ignore`,
 	name,
 }));
