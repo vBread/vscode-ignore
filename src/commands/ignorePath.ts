@@ -2,11 +2,11 @@ import fs from "fs/promises";
 import path from "path";
 import { window, workspace, type Uri } from "vscode";
 
-export async function ignorePath(uri?: Uri): Promise<void> {
+export default async function (uri?: Uri): Promise<void> {
 	uri ??= window.activeTextEditor?.document.uri;
 
 	if (!uri) {
-		return void (await window.showErrorMessage("No active text editor"));
+		return void (await window.showErrorMessage("Could not ignore path, no active text editor"));
 	}
 
 	const ignoreFiles = await workspace.findFiles(".*ignore");
@@ -18,11 +18,7 @@ export async function ignorePath(uri?: Uri): Promise<void> {
 		));
 	}
 
-	if (ignoreFiles.length === 1) {
-		return await fs.appendFile(ignoreFiles[0].fsPath, toIgnore);
-	}
-
-	const files = await window.showQuickPick(
+	let files = await window.showQuickPick(
 		ignoreFiles.map((file) => ({
 			label: path.basename(file.fsPath),
 			description: file.fsPath,
@@ -30,9 +26,16 @@ export async function ignorePath(uri?: Uri): Promise<void> {
 		{ canPickMany: true }
 	);
 
+	if (ignoreFiles.length === 1) {
+		files = [{ label: "", description: ignoreFiles[0].fsPath }];
+	}
+
 	if (!files) return;
 
 	for (const file of files) {
-		await fs.appendFile(file.description, toIgnore);
+		/* eslint-disable @typescript-eslint/no-non-null-assertion */
+		const contents = await fs.readFile(file.description!);
+
+		await fs.appendFile(file.description!, `${contents ? "\n" : ""}${toIgnore}`);
 	}
 }

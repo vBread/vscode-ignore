@@ -1,21 +1,20 @@
-import fs from "fs/promises";
+import fs, { type FileHandle } from "fs/promises";
 import path from "path";
 import { Uri, window, workspace } from "vscode";
 import { flavors } from "../language/flavors";
-import { fetchTemplate } from "./template";
+import { getConfig, promptTemplate } from "../util";
 
-export async function newFile(uri?: Uri): Promise<void> {
-	const active = window.activeTextEditor?.document.uri;
-	if (!active) return;
+export default async function (uri?: Uri): Promise<void> {
+	const folder = window.activeTextEditor?.document.uri ?? workspace.workspaceFolders?.[0].uri;
+	if (!folder) return;
 
-	uri ??= workspace.getWorkspaceFolder(active)?.uri;
+	uri ??= workspace.getWorkspaceFolder(folder)?.uri;
 	if (!uri) return;
 
-	const type = (
+	const method = (
 		await window.showQuickPick(
 			[
 				{ label: "Empty", detail: "Create an empty file" },
-
 				{
 					label: "Template",
 					detail: "Create a file from GitHub's collection of .gitignore templates",
@@ -24,12 +23,12 @@ export async function newFile(uri?: Uri): Promise<void> {
 			{ placeHolder: "Select a creation method" }
 		)
 	)?.label;
-	if (!type) return;
+	if (!method) return;
 
 	let source = "";
 
-	if (type === "Template") {
-		source = (await fetchTemplate()) ?? "";
+	if (method === "Template") {
+		source = (await promptTemplate()) ?? "";
 	}
 
 	const filename = (
@@ -43,11 +42,14 @@ export async function newFile(uri?: Uri): Promise<void> {
 	if (!filename) return;
 
 	const target = path.resolve(uri.fsPath, filename);
+	let file: FileHandle | undefined;
 
 	try {
-		await fs.stat(target);
-
-		const config = workspace.getConfiguration("ignore");
+		file = await fs.open(target, "ax");
+		file.writeFile(source);
+	} catch {
+		const config = getConfig();
+		let behavior = "Overwrite";
 
 		if (config.newFileConflictBehavior === "prompt") {
 			const action = await window.showErrorMessage(
@@ -58,25 +60,16 @@ export async function newFile(uri?: Uri): Promise<void> {
 			);
 
 			if (!action || action === "Cancel") return;
-
-			throw action.toLowerCase();
+			behavior = action;
 		}
 
-		throw config.newFileConflictBehavior;
-	} catch (error: unknown) {
-		if (error instanceof Error) {
-			// eslint-disable-next-line no-ex-assign
-			error = "overwrite";
+		if (behavior === "Overwrite") {
+			await fs.writeFile(target, source);
+		} else {
+			await fs.appendFile(target, source);
 		}
-
-		if (typeof error === "string") {
-			if (error === "overwrite") {
-				await fs.writeFile(target, source);
-			} else {
-				await fs.appendFile(target, source);
-			}
-
-			await window.showTextDocument(Uri.file(target));
-		}
+	} finally {
+		await window.showTextDocument(Uri.file(target));
+		file?.close();
 	}
 }
