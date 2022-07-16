@@ -1,3 +1,4 @@
+import glob from "fast-glob";
 import fs from "fs";
 import path from "path/posix";
 import {
@@ -79,7 +80,7 @@ export default async function (
 				label: file,
 				kind: isFile ? Kind.File : Kind.Folder,
 				sortText: `${type & 1}_${file}`,
-				insertText: file + (type === FileType.File ? "" : "/"),
+				insertText: glob.escapePath(file) + (type === FileType.File ? "" : "/"),
 				// FIXME: For some reason, adding a range causes '!' to not trigger completions
 				range: new Range(new Position(pos.line, line.lastIndexOf("/") + 1), pos),
 				command: isFile ? undefined : triggerSuggest,
