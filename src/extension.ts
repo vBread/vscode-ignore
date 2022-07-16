@@ -1,37 +1,34 @@
-import {
-	commands,
-	languages,
-	window,
-	workspace,
-	type DocumentSelector,
-	type ExtensionContext,
-} from "vscode";
-import * as cmds from "./commands";
-import { provideCompletionItems } from "./providers";
-
-const TRIGGER_CHARACTERS = ["/", "*", ".", "(", "~", "!", "#", "$", "@"];
+import { basename } from "path";
+import { commands, window, type ExtensionContext } from "vscode";
+import registeredCommands from "./commands";
+import registeredProviders from "./providers";
+import { getConfig } from "./util";
 
 export function activate(context: ExtensionContext): void {
-	const selector: DocumentSelector = { language: "ignore", scheme: "file" };
+	const textEditorChange = window.onDidChangeActiveTextEditor(async (editor) => {
+		if (!editor) return;
 
-	context.subscriptions.push(
-		languages.registerCompletionItemProvider(
-			selector,
-			{ provideCompletionItems },
-			...TRIGGER_CHARACTERS
-		),
-		commands.registerCommand("ignore.newFile", cmds.newFile),
-		commands.registerCommand("ignore.ignorePath", cmds.ignorePath),
-		commands.registerCommand("ignore.choose-template", cmds.template),
-		window.onDidChangeActiveTextEditor((e) => {
-			if (
-				workspace.getConfiguration("ignore").get("promptChooseTemplateOnEmptyGitignore") &&
-				e &&
-				e.document.fileName.endsWith(".gitignore") &&
-				/^\s*$/.test(e.document.getText())
-			) {
-				commands.executeCommand("ignore.choose-template");
+		const config = getConfig();
+		const isIgnoreFile = /^\..+ignore$/.test(basename(editor.document.fileName));
+		const isEmpty = !editor.document.getText().trim();
+
+		if (config.promptOnEmptyFile && isIgnoreFile && isEmpty) {
+			const response = await window.showInformationMessage(
+				"Empty ignore file detected, would you like to use a template?",
+				"Yes",
+				"No",
+				"Disable this message"
+			);
+
+			if (!response || response === "No") return;
+
+			if (response === "Disable this message") {
+				return config.update("ignore.promptOnEmptyFile", false);
 			}
-		})
-	);
+
+			await commands.executeCommand("ignore.chooseTemplate");
+		}
+	});
+
+	context.subscriptions.push(...registeredProviders, ...registeredCommands, textEditorChange);
 }
