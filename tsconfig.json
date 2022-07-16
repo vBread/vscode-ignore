@@ -11,9 +11,10 @@
 		"removeComments": false,
 		"strict": true,
 		"esModuleInterop": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"sourceMap": true
 	},
 	"include": [
 		"**/*.ts"
-	],
+	]
 }
