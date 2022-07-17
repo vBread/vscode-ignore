@@ -8,7 +8,7 @@
   - [ ] Completions
     - [x] Paths
     - [ ] Glob patterns
-    - [ ] Extensions
+    - [x] Extensions
     - [ ] Git magic signatures
       - [ ] `.gitattributes` detection with `:(attr:)`
   - [ ] File references (?)

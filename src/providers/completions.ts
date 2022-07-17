@@ -15,7 +15,7 @@ import {
 } from "vscode";
 
 const triggerSuggest = {
-	title: "Trigger Suggest",
+	title: "",
 	command: "editor.action.triggerSuggest",
 };
 
@@ -27,16 +27,8 @@ export default async function (
 ): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	const line = doc.getText(doc.lineAt(pos).range).trim();
+	const line = doc.lineAt(pos.line).text.trim();
 	const prevChar = line[pos.character - 2];
-
-	// TODO: Handle signature checking better
-	if (ctx.triggerCharacter === "(" && prevChar === ":") {
-		return ["top", "icase", "literal", "glob", "attr", "exclude"].map((signature) => ({
-			label: signature,
-			kind: Kind.Keyword,
-		}));
-	}
 
 	if (line === "") {
 		completions.push({
@@ -47,8 +39,8 @@ export default async function (
 	}
 
 	const globStars = [
-		{ label: "*", kind: Kind.Operator },
-		{ label: "**", kind: Kind.Operator },
+		{ label: "*", kind: Kind.Operator, command: triggerSuggest },
+		{ label: "**", kind: Kind.Operator, command: triggerSuggest },
 	];
 
 	if (line.endsWith("/") || line === "") {
@@ -57,10 +49,34 @@ export default async function (
 		completions.push(...globStars.map((star) => ({ ...star, insertText: `/${star.label}` })));
 	}
 
-	const root = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath ?? "";
+	// TODO: Handle signature checking better
+	if (ctx.triggerCharacter === "(" && prevChar === ":") {
+		return ["top", "icase", "literal", "glob", "attr", "exclude"].map((signature) => ({
+			label: signature,
+			kind: Kind.Keyword,
+		}));
+	}
+
+	if (line.endsWith("*") && prevChar !== "*") {
+		const files = await workspace.findFiles(line, null, undefined, token);
+		const extensions = new Set(files.map((file) => path.extname(file.fsPath)));
+
+		for (const extension of extensions) {
+			completions.push({
+				label: extension,
+				kind: Kind.Constant,
+				range: new Range(new Position(pos.line, line.lastIndexOf("*") + 1), pos),
+			});
+		}
+
+		return completions;
+	}
+
+	const root = workspace.getWorkspaceFolder(doc.uri);
+	if (!root) return [];
 
 	const normalized = path.normalize(line.replace(/!/g, ""));
-	const parent = path.isAbsolute(normalized) ? root : path.dirname(doc.fileName);
+	const parent = normalized.startsWith("/") ? root.uri.fsPath : path.dirname(doc.fileName);
 
 	let folder = path.join(parent, normalized);
 
@@ -75,12 +91,13 @@ export default async function (
 			if (file === path.basename(doc.fileName)) continue;
 
 			const isFile = type === FileType.File;
+			const name = file + (isFile ? "" : "/");
 
 			completions.push({
-				label: file,
+				label: name,
 				kind: isFile ? Kind.File : Kind.Folder,
 				sortText: `${type & 1}_${file}`,
-				insertText: glob.escapePath(file) + (type === FileType.File ? "" : "/"),
+				insertText: glob.escapePath(name),
 				// FIXME: For some reason, adding a range causes '!' to not trigger completions
 				range: new Range(new Position(pos.line, line.lastIndexOf("/") + 1), pos),
 				command: isFile ? undefined : triggerSuggest,
