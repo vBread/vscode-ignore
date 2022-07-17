@@ -18,7 +18,7 @@ export default async function (doc: TextDocument): Promise<DocumentLink[]> {
 		if (line === "" || line.startsWith("#")) continue;
 
 		const normalized = path.normalize(line);
-		const parent = path.isAbsolute(normalized) ? root : path.dirname(doc.fileName);
+		const parent = normalized.startsWith("/") ? root : path.dirname(doc.fileName);
 
 		const target = Uri.file(path.join(parent, normalized));
 
