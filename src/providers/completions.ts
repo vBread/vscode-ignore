@@ -1,17 +1,17 @@
+import fs from "node:fs";
+import path from "node:path/posix";
 import glob from "fast-glob";
-import fs from "fs";
-import path from "path/posix";
 import {
-	CompletionItemKind as Kind,
-	FileType,
-	Position,
-	Range,
-	Uri,
-	workspace,
 	type CancellationToken,
 	type CompletionContext,
 	type CompletionItem,
+	FileType,
+	CompletionItemKind as Kind,
+	Position,
+	Range,
 	type TextDocument,
+	Uri,
+	workspace,
 } from "vscode";
 
 const triggerSuggest = {
@@ -23,7 +23,7 @@ export default async function (
 	doc: TextDocument,
 	pos: Position,
 	token: CancellationToken,
-	ctx: CompletionContext
+	ctx: CompletionContext,
 ): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 

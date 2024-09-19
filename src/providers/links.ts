@@ -1,5 +1,5 @@
-import path from "path/posix";
-import { Position, Range, Uri, workspace, type DocumentLink, type TextDocument } from "vscode";
+import path from "node:path/posix";
+import { type DocumentLink, Position, Range, type TextDocument, Uri, workspace } from "vscode";
 
 export default async function (doc: TextDocument): Promise<DocumentLink[]> {
 	const links: DocumentLink[] = [];

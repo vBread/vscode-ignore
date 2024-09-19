@@ -1,23 +1,23 @@
-import { basename } from "path";
-import { commands, window, type ExtensionContext } from "vscode";
+import path from "node:path";
+import { commands, type ExtensionContext, window } from "vscode";
 import registeredCommands from "./commands";
 import registeredProviders from "./providers";
 import { getConfig } from "./util";
 
-export function activate(context: ExtensionContext): void {
+export async function activate(context: ExtensionContext): Promise<void> {
 	const textEditorChange = window.onDidChangeActiveTextEditor(async (editor) => {
 		if (!editor) return;
 
 		const config = getConfig();
-		const isIgnoreFile = /^\..+ignore$/.test(basename(editor.document.fileName));
-		const isEmpty = !editor.document.getText().trim();
+		const isIgnoreFile = /^\..+ignore$/.test(path.basename(editor.document.fileName));
+		const isEmpty = !editor.document.getText().trim().length;
 
 		if (config.promptOnEmptyFile && isIgnoreFile && isEmpty) {
 			const response = await window.showInformationMessage(
 				"Empty ignore file detected, would you like to use a template?",
 				"Yes",
 				"No",
-				"Disable this message"
+				"Disable this message",
 			);
 
 			if (!response || response === "No") return;

@@ -1,5 +1,4 @@
 import { languages } from "vscode";
-
 import provideCompletionItems from "./completions";
 import provideDocumentLinks from "./links";
 

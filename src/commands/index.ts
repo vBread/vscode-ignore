@@ -1,5 +1,4 @@
 import { commands } from "vscode";
-
 import chooseTemplate from "./chooseTemplate";
 import ignorePath from "./ignorePath";
 import newFile from "./newFile";
