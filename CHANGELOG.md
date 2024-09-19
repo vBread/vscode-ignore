@@ -1,4 +1,4 @@
-# Change Log
+# Changelog
 
 ## 1.0.0
 
@@ -19,3 +19,7 @@
 ## 2.1.0
 
 - Add support for basic glob completions
+
+## 3.0.0
+
+- Add `.distignore` and `.terraformignore` support
