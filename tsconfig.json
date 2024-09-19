@@ -1,20 +1,14 @@
 {
 	"compilerOptions": {
-		"importHelpers": true,
-		"lib": [
-			"ESNext"
-		],
-		"target": "ESNext",
-		"module": "CommonJS",
-		"moduleResolution": "node",
+		"noEmit": true,
 		"outDir": "dist",
-		"removeComments": false,
 		"strict": true,
-		"esModuleInterop": true,
 		"skipLibCheck": true,
-		"sourceMap": true
-	},
-	"include": [
-		"**/*.ts"
-	]
+		"target": "ES2022",
+		"module": "Preserve",
+		"moduleDetection": "force",
+		"esModuleInterop": true,
+		"verbatimModuleSyntax": true,
+		"resolveJsonModule": true
+	}
 }
