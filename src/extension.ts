@@ -1,7 +1,7 @@
 import path from "node:path";
 import { commands, type ExtensionContext, window } from "vscode";
 import registeredCommands from "./commands";
-import registeredProviders from "./providers";
+import { providers } from "./features";
 import { getConfig } from "./util";
 
 export async function activate(context: ExtensionContext): Promise<void> {
@@ -30,5 +30,5 @@ export async function activate(context: ExtensionContext): Promise<void> {
 		}
 	});
 
-	context.subscriptions.push(...registeredProviders, ...registeredCommands, textEditorChange);
+	context.subscriptions.push(...providers, ...registeredCommands, textEditorChange);
 }

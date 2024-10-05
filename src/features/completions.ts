@@ -2,14 +2,12 @@ import fs from "node:fs";
 import path from "node:path/posix";
 import glob from "fast-glob";
 import {
-	type CancellationToken,
-	type CompletionContext,
 	type CompletionItem,
+	type CompletionItemProvider,
 	FileType,
 	CompletionItemKind as Kind,
 	Position,
 	Range,
-	type TextDocument,
 	Uri,
 	workspace,
 } from "vscode";
@@ -19,12 +17,12 @@ const triggerSuggest = {
 	command: "editor.action.triggerSuggest",
 };
 
-export default async function (
-	doc: TextDocument,
-	pos: Position,
-	token: CancellationToken,
-	ctx: CompletionContext,
-): Promise<CompletionItem[]> {
+export const provideCompletionItems: CompletionItemProvider["provideCompletionItems"] = async (
+	doc,
+	pos,
+	token,
+	ctx,
+) => {
 	const completions: CompletionItem[] = [];
 
 	const line = doc.lineAt(pos.line).text.trim();
@@ -109,4 +107,4 @@ export default async function (
 	}
 
 	return completions;
-}
+};
