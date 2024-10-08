@@ -4,7 +4,7 @@
 		"outDir": "dist",
 		"strict": true,
 		"skipLibCheck": true,
-		"target": "ES2022",
+		"target": "ESNext",
 		"module": "Preserve",
 		"moduleDetection": "force",
 		"esModuleInterop": true,

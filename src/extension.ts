@@ -1,7 +1,7 @@
 import path from "node:path";
-import { commands, type ExtensionContext, window } from "vscode";
+import { commands, type ExtensionContext, window, workspace } from "vscode";
 import registeredCommands from "./commands";
-import { providers } from "./features";
+import { diagnostics, providers } from "./features";
 import { getConfig } from "./util";
 
 export async function activate(context: ExtensionContext): Promise<void> {
@@ -30,5 +30,16 @@ export async function activate(context: ExtensionContext): Promise<void> {
 		}
 	});
 
-	context.subscriptions.push(...providers, ...registeredCommands, textEditorChange);
+	// TODO: better diagnostics reporting
+	const textDocChange = workspace.onDidChangeTextDocument(async (event) => {
+		await diagnostics.update(event.document);
+	});
+
+	context.subscriptions.push(
+		...providers,
+		...registeredCommands,
+		diagnostics.collection,
+		textEditorChange,
+		textDocChange,
+	);
 }
