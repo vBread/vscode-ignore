@@ -19,10 +19,11 @@ export interface IgnoreEntry {
 	range: Range;
 	isDynamic: boolean;
 	isNegated: boolean;
+	matches: string[];
 }
 
 export async function parse(document: TextDocument): Promise<IgnoreFile> {
-	const root = workspace.getWorkspaceFolder(document.uri) ?? "";
+	const root = workspace.getWorkspaceFolder(document.uri);
 	if (!root) throw new ReferenceError("not in a workspace");
 
 	const entries: IgnoreEntry[] = [];
@@ -39,6 +40,7 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 			text: line.text,
 			isDynamic: false,
 			isNegated: false,
+			matches: [] as string[],
 		};
 
 		let type: EntryType;
@@ -52,6 +54,13 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 			entry.text = path.normalize(trimmed);
 			entry.isDynamic = glob.isDynamicPattern(trimmed, { dot: true });
 			entry.isNegated = line.text[firstNwsIdx] === "!";
+
+			entry.matches = await glob(entry.text, {
+				cwd: root.uri.fsPath,
+				dot: true,
+				onlyFiles: false,
+				markDirectories: true,
+			});
 		}
 
 		entries.push({
