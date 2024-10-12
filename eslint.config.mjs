@@ -6,6 +6,8 @@ export default config({
 	rules: {
 		curly: "off",
 		"no-console": "off",
+		"no-unused-vars": "off",
+		"unused-imports/no-unused-vars": "warn",
 		"import/order": "off",
 		"jsonc/sort-keys": "off",
 		"ts/ban-ts-comment": "off",
