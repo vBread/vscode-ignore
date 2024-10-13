@@ -110,6 +110,36 @@
 		"configuration": {
 			"title": "Ignore",
 			"properties": {
+				"ignore.lint.coveredPatterns": {
+					"type": "string",
+					"enum": [
+						"off",
+						"warn",
+						"error"
+					],
+					"default": "warn",
+					"description": "Disallow patterns that are already covered by other patterns."
+				},
+				"ignore.lint.duplicatePatterns": {
+					"type": "string",
+					"enum": [
+						"off",
+						"warn",
+						"error"
+					],
+					"default": "warn",
+					"description": "Disallow duplicate patterns."
+				},
+				"ignore.lint.unusedPatterns": {
+					"type": "string",
+					"enum": [
+						"off",
+						"warn",
+						"error"
+					],
+					"default": "off",
+					"description": "Disallow patterns that don't have any matches. This is `off` by default because most ignore templates include general patterns that won't always be used."
+				},
 				"ignore.newFileConflictBehavior": {
 					"type": "string",
 					"enum": [
@@ -123,7 +153,7 @@
 						"Always prompt what to do when an ignore file already exists."
 					],
 					"default": "prompt",
-					"description": "Choose the default behavior when attempting to create a new ignore file and an ignore file already exists."
+					"description": "Default behavior when attempting to create a new ignore file and an ignore file already exists."
 				},
 				"ignore.promptOnEmptyFile": {
 					"type": "boolean",

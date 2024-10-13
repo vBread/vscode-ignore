@@ -1,5 +1,6 @@
 import { type Diagnostic, DiagnosticSeverity, languages, type TextDocument } from "vscode";
 import { type IgnoreFile, type IgnorePattern, parse, PatternType } from "../language/parse";
+import { getConfig, type LintSeverity } from "../util";
 
 export const collection = languages.createDiagnosticCollection("ignore");
 
@@ -10,48 +11,19 @@ export enum DiagnosticCode {
 }
 
 export async function update(document: TextDocument): Promise<void> {
+	const { lint } = getConfig();
 	const file = await parse(document);
 
 	collection.set(document.uri, [
-		...checkCoveredPatterns(file),
-		...checkDuplicatePatterns(file),
-		...checkUnusedPatterns(file),
+		...checkCoveredPatterns(file, convertSeverity(lint.coveredPatterns)),
+		...checkDuplicatePatterns(file, convertSeverity(lint.duplicatePatterns)),
+		...checkUnusedPatterns(file, convertSeverity(lint.unusedPatterns)),
 	]);
 }
 
-function checkDuplicatePatterns(file: IgnoreFile): Diagnostic[] {
-	const duplicates = new Map<string, IgnorePattern[]>();
-	const diagnostics: Diagnostic[] = [];
+function checkCoveredPatterns(file: IgnoreFile, severity: number): Diagnostic[] {
+	if (severity === -1) return [];
 
-	for (const pattern of file.patterns) {
-		if (duplicates.has(pattern.text)) {
-			duplicates.get(pattern.text)!.push(pattern);
-		} else {
-			duplicates.set(pattern.text, [pattern]);
-		}
-	}
-
-	for (const patterns of duplicates.values()) {
-		if (patterns.length === 1) continue;
-
-		for (let i = 0; i < patterns.length; i++) {
-			// Skip first pattern, report on subsequent
-			if (i === 0) continue;
-
-			diagnostics.push({
-				code: DiagnosticCode.DuplicatePattern,
-				severity: DiagnosticSeverity.Warning,
-				range: patterns[i].range,
-				message: `'${patterns[i].text}' is defined more than once`,
-				source: "ignore",
-			});
-		}
-	}
-
-	return diagnostics;
-}
-
-function checkCoveredPatterns(file: IgnoreFile): Diagnostic[] {
 	const patterns = file.patterns.filter((pattern) => pattern.type !== PatternType.Comment);
 
 	const ignored = new Set<string>();
@@ -114,7 +86,7 @@ function checkCoveredPatterns(file: IgnoreFile): Diagnostic[] {
 			...diags,
 			{
 				code: DiagnosticCode.CoveredPattern,
-				severity: DiagnosticSeverity.Warning,
+				severity,
 				range: problem.range,
 				message: `'${problem.text}' is covered by '${original.text}'`,
 				source: "ignore",
@@ -124,14 +96,50 @@ function checkCoveredPatterns(file: IgnoreFile): Diagnostic[] {
 	);
 }
 
-function checkUnusedPatterns(file: IgnoreFile): Diagnostic[] {
+function checkDuplicatePatterns(file: IgnoreFile, severity: number): Diagnostic[] {
+	if (severity === -1) return [];
+
+	const duplicates = new Map<string, IgnorePattern[]>();
+	const diagnostics: Diagnostic[] = [];
+
+	for (const pattern of file.patterns) {
+		if (duplicates.has(pattern.text)) {
+			duplicates.get(pattern.text)!.push(pattern);
+		} else {
+			duplicates.set(pattern.text, [pattern]);
+		}
+	}
+
+	for (const patterns of duplicates.values()) {
+		if (patterns.length === 1) continue;
+
+		for (let i = 0; i < patterns.length; i++) {
+			// Skip first pattern, report on subsequent
+			if (i === 0) continue;
+
+			diagnostics.push({
+				code: DiagnosticCode.DuplicatePattern,
+				severity,
+				range: patterns[i].range,
+				message: `'${patterns[i].text}' is defined more than once`,
+				source: "ignore",
+			});
+		}
+	}
+
+	return diagnostics;
+}
+
+function checkUnusedPatterns(file: IgnoreFile, severity: number): Diagnostic[] {
+	if (severity === -1) return [];
+
 	return file.patterns
 		.filter((pattern) => pattern.type === PatternType.Pattern)
 		.reduce<Diagnostic[]>((diags, pattern) => {
 			if (!pattern.matches.length) {
 				diags.push({
 					code: DiagnosticCode.UnusedPattern,
-					severity: DiagnosticSeverity.Warning,
+					severity,
 					range: pattern.range,
 					message: `'${pattern.text}' is unused`,
 					source: "ignore",
@@ -152,4 +160,15 @@ function removeAll(source: Set<string>, other: Set<string>) {
 	}
 
 	return removed;
+}
+
+function convertSeverity(level: LintSeverity) {
+	switch (level) {
+		case "off":
+			return -1;
+		case "warn":
+			return DiagnosticSeverity.Warning;
+		case "error":
+			return DiagnosticSeverity.Error;
+	}
 }
