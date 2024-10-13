@@ -5,16 +5,16 @@ import { Position, Range, type TextDocument, workspace } from "vscode";
 export interface IgnoreFile {
 	name: string;
 	path: string;
-	entries: IgnoreEntry[];
+	patterns: IgnorePattern[];
 }
 
-export enum EntryType {
+export enum PatternType {
 	Comment,
 	Pattern,
 }
 
-export interface IgnoreEntry {
-	type: EntryType;
+export interface IgnorePattern {
+	type: PatternType;
 	text: string;
 	range: Range;
 	isDynamic: boolean;
@@ -26,7 +26,7 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 	const root = workspace.getWorkspaceFolder(document.uri);
 	if (!root) throw new ReferenceError("not in a workspace");
 
-	const entries: IgnoreEntry[] = [];
+	const patterns: IgnorePattern[] = [];
 
 	for (let i = 0; i < document.lineCount; i++) {
 		const line = document.lineAt(i);
@@ -36,26 +36,26 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 
 		const startPos = new Position(line.lineNumber, firstNwsIdx);
 
-		const entry = {
+		const pattern = {
 			text: line.text,
 			isDynamic: false,
 			isNegated: false,
 			matches: [] as string[],
 		};
 
-		let type: EntryType;
+		let type: PatternType;
 
 		if (line.text[firstNwsIdx] === "#") {
-			type = EntryType.Comment;
+			type = PatternType.Comment;
 		} else {
-			type = EntryType.Pattern;
+			type = PatternType.Pattern;
 			const trimmed = line.text.slice(firstNwsIdx);
 
-			entry.text = path.normalize(trimmed);
-			entry.isDynamic = glob.isDynamicPattern(trimmed, { dot: true });
-			entry.isNegated = line.text[firstNwsIdx] === "!";
+			pattern.text = path.normalize(trimmed);
+			pattern.isDynamic = glob.isDynamicPattern(trimmed, { dot: true });
+			pattern.isNegated = line.text[firstNwsIdx] === "!";
 
-			entry.matches = await glob(entry.text, {
+			pattern.matches = await glob(pattern.text, {
 				cwd: root.uri.fsPath,
 				dot: true,
 				onlyFiles: false,
@@ -63,19 +63,19 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 			});
 		}
 
-		entries.push({
+		patterns.push({
 			type,
 			range: new Range(
 				startPos,
-				new Position(line.lineNumber, firstNwsIdx + entry.text.length),
+				new Position(line.lineNumber, firstNwsIdx + pattern.text.length),
 			),
-			...entry,
+			...pattern,
 		});
 	}
 
 	return {
 		name: document.fileName,
 		path: document.uri.fsPath,
-		entries,
+		patterns,
 	};
 }

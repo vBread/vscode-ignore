@@ -4,9 +4,9 @@
 
 - Add `.distignore` and `.terraformignore` support
 - Add parser
-- Add covered entry diagnostics
-- Add duplicate entry diagnostics
-- Add unused entry diagnostics
+- Add covered pattern diagnostics
+- Add duplicate pattern diagnostics
+- Add unused pattern diagnostics
 - Add quick fix code actions for diagnostics
 
 ## 2.1.0

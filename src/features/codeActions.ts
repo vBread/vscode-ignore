@@ -10,7 +10,7 @@ export const provideCodeActions: CodeActionProvider["provideCodeActions"] = asyn
 
 	for (const diagnostic of context.diagnostics) {
 		// We don't need to check the code since each diagnostic
-		// can be solved by removing the entry
+		// can be solved by removing the pattern
 
 		const edit = new WorkspaceEdit();
 		edit.delete(document.uri, diagnostic.range);
@@ -19,7 +19,7 @@ export const provideCodeActions: CodeActionProvider["provideCodeActions"] = asyn
 
 		actions.push({
 			kind: CodeActionKind.QuickFix,
-			title: `Remove ${adjective} entry`,
+			title: `Remove ${adjective} pattern`,
 			diagnostics: [diagnostic],
 			isPreferred: true,
 			edit,

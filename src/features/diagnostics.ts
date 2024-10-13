@@ -1,48 +1,48 @@
 import { type Diagnostic, DiagnosticSeverity, languages, type TextDocument } from "vscode";
-import { EntryType, type IgnoreEntry, type IgnoreFile, parse } from "../language/parse";
+import { type IgnoreFile, type IgnorePattern, parse, PatternType } from "../language/parse";
 
 export const collection = languages.createDiagnosticCollection("ignore");
 
 export enum DiagnosticCode {
-	CoveredEntry = "covered-entry",
-	DuplicateEntry = "duplicate-entry",
-	UnusedEntry = "unused-entry",
+	CoveredPattern = "covered-pattern",
+	DuplicatePattern = "duplicate-pattern",
+	UnusedPattern = "unused-pattern",
 }
 
 export async function update(document: TextDocument): Promise<void> {
 	const file = await parse(document);
 
 	collection.set(document.uri, [
-		...checkCoveredEntries(file),
-		...checkDuplicateEntries(file),
-		...checkUnusedEntries(file),
+		...checkCoveredPatterns(file),
+		...checkDuplicatePatterns(file),
+		...checkUnusedPatterns(file),
 	]);
 }
 
-function checkDuplicateEntries(file: IgnoreFile): Diagnostic[] {
-	const duplicates = new Map<string, IgnoreEntry[]>();
+function checkDuplicatePatterns(file: IgnoreFile): Diagnostic[] {
+	const duplicates = new Map<string, IgnorePattern[]>();
 	const diagnostics: Diagnostic[] = [];
 
-	for (const entry of file.entries) {
-		if (duplicates.has(entry.text)) {
-			duplicates.get(entry.text)!.push(entry);
+	for (const pattern of file.patterns) {
+		if (duplicates.has(pattern.text)) {
+			duplicates.get(pattern.text)!.push(pattern);
 		} else {
-			duplicates.set(entry.text, [entry]);
+			duplicates.set(pattern.text, [pattern]);
 		}
 	}
 
-	for (const entries of duplicates.values()) {
-		if (entries.length === 1) continue;
+	for (const patterns of duplicates.values()) {
+		if (patterns.length === 1) continue;
 
-		for (let i = 0; i < entries.length; i++) {
-			// Skip first entry, report on subsequent
+		for (let i = 0; i < patterns.length; i++) {
+			// Skip first pattern, report on subsequent
 			if (i === 0) continue;
 
 			diagnostics.push({
-				code: DiagnosticCode.DuplicateEntry,
+				code: DiagnosticCode.DuplicatePattern,
 				severity: DiagnosticSeverity.Warning,
-				range: entries[i].range,
-				message: `'${entries[i].text}' is defined more than once`,
+				range: patterns[i].range,
+				message: `'${patterns[i].text}' is defined more than once`,
 				source: "ignore",
 			});
 		}
@@ -51,28 +51,28 @@ function checkDuplicateEntries(file: IgnoreFile): Diagnostic[] {
 	return diagnostics;
 }
 
-function checkCoveredEntries(file: IgnoreFile): Diagnostic[] {
-	const entries = file.entries.filter((entry) => entry.type !== EntryType.Comment);
+function checkCoveredPatterns(file: IgnoreFile): Diagnostic[] {
+	const patterns = file.patterns.filter((pattern) => pattern.type !== PatternType.Comment);
 
 	const ignored = new Set<string>();
 	const unignored = new Set<string>();
 
 	let intersection: Set<string>;
 
-	const map = new Map<IgnoreEntry, Set<string>>();
-	const matchedMap = new Map<IgnoreEntry, Set<string>>();
+	const map = new Map<IgnorePattern, Set<string>>();
+	const matchedMap = new Map<IgnorePattern, Set<string>>();
 
-	const covered: [IgnoreEntry, IgnoreEntry][] = [];
+	const covered: [IgnorePattern, IgnorePattern][] = [];
 
-	for (const entry of file.entries) {
-		matchedMap.set(entry, new Set(entry.matches));
+	for (const pattern of file.patterns) {
+		matchedMap.set(pattern, new Set(pattern.matches));
 	}
 
-	for (const entry of entries) {
-		const matched = matchedMap.get(entry);
+	for (const pattern of patterns) {
+		const matched = matchedMap.get(pattern);
 		if (!matched) continue;
 
-		if (!entry.isNegated) {
+		if (!pattern.isNegated) {
 			matched.forEach((path) => ignored.add(path));
 			intersection = unignored.intersection(matched);
 
@@ -95,25 +95,25 @@ function checkCoveredEntries(file: IgnoreFile): Diagnostic[] {
 				continue;
 			}
 
-			if (entry.isNegated === recent.isNegated) {
+			if (pattern.isNegated === recent.isNegated) {
 				if (recentValues.isSupersetOf(matched)) {
-					covered.push([recent, entry]);
+					covered.push([recent, pattern]);
 				} else if (matched.isSupersetOf(recentValues)) {
-					covered.push([entry, recent]);
+					covered.push([pattern, recent]);
 				}
 			} else if (intersection.isSupersetOf(recentValues)) {
-				covered.push([entry, recent]);
+				covered.push([pattern, recent]);
 			}
 		}
 
-		map.set(entry, matched);
+		map.set(pattern, matched);
 	}
 
 	return covered.reduce<Diagnostic[]>(
 		(diags, [original, problem]) => [
 			...diags,
 			{
-				code: DiagnosticCode.CoveredEntry,
+				code: DiagnosticCode.CoveredPattern,
 				severity: DiagnosticSeverity.Warning,
 				range: problem.range,
 				message: `'${problem.text}' is covered by '${original.text}'`,
@@ -124,16 +124,16 @@ function checkCoveredEntries(file: IgnoreFile): Diagnostic[] {
 	);
 }
 
-function checkUnusedEntries(file: IgnoreFile): Diagnostic[] {
-	return file.entries
-		.filter((entry) => entry.type === EntryType.Pattern)
-		.reduce<Diagnostic[]>((diags, entry) => {
-			if (!entry.matches.length) {
+function checkUnusedPatterns(file: IgnoreFile): Diagnostic[] {
+	return file.patterns
+		.filter((pattern) => pattern.type === PatternType.Pattern)
+		.reduce<Diagnostic[]>((diags, pattern) => {
+			if (!pattern.matches.length) {
 				diags.push({
-					code: DiagnosticCode.UnusedEntry,
+					code: DiagnosticCode.UnusedPattern,
 					severity: DiagnosticSeverity.Warning,
-					range: entry.range,
-					message: `'${entry.text}' is unused`,
+					range: pattern.range,
+					message: `'${pattern.text}' is unused`,
 					source: "ignore",
 				});
 			}
@@ -145,8 +145,8 @@ function checkUnusedEntries(file: IgnoreFile): Diagnostic[] {
 function removeAll(source: Set<string>, other: Set<string>) {
 	let removed = false;
 
-	for (const entry of other) {
-		if (source.delete(entry) && !removed) {
+	for (const pattern of other) {
+		if (source.delete(pattern) && !removed) {
 			removed = true;
 		}
 	}
