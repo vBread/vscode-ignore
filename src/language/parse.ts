@@ -8,13 +8,7 @@ export interface IgnoreFile {
 	patterns: IgnorePattern[];
 }
 
-export enum PatternType {
-	Comment,
-	Pattern,
-}
-
 export interface IgnorePattern {
-	type: PatternType;
 	text: string;
 	range: Range;
 	isDynamic: boolean;
@@ -32,44 +26,28 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 		const line = document.lineAt(i);
 		const firstNwsIdx = line.firstNonWhitespaceCharacterIndex;
 
-		if (line.isEmptyOrWhitespace) continue;
+		if (line.isEmptyOrWhitespace || line.text[firstNwsIdx] === "#") {
+			continue;
+		}
 
 		const startPos = new Position(line.lineNumber, firstNwsIdx);
 
-		const pattern = {
-			text: line.text,
-			isDynamic: false,
-			isNegated: false,
-			matches: [] as string[],
-		};
+		const trimmed = line.text.slice(firstNwsIdx);
+		const text = path.normalize(trimmed);
 
-		let type: PatternType;
-
-		if (line.text[firstNwsIdx] === "#") {
-			type = PatternType.Comment;
-		} else {
-			type = PatternType.Pattern;
-			const trimmed = line.text.slice(firstNwsIdx);
-
-			pattern.text = path.normalize(trimmed);
-			pattern.isDynamic = glob.isDynamicPattern(trimmed, { dot: true });
-			pattern.isNegated = line.text[firstNwsIdx] === "!";
-
-			pattern.matches = await glob(pattern.text, {
-				cwd: root.uri.fsPath,
-				dot: true,
-				onlyFiles: false,
-				markDirectories: true,
-			});
-		}
+		const matches = await glob(text, {
+			cwd: root.uri.fsPath,
+			dot: true,
+			onlyFiles: false,
+			markDirectories: true,
+		});
 
 		patterns.push({
-			type,
-			range: new Range(
-				startPos,
-				new Position(line.lineNumber, firstNwsIdx + pattern.text.length),
-			),
-			...pattern,
+			text: path.normalize(trimmed),
+			range: new Range(startPos, new Position(line.lineNumber, firstNwsIdx + text.length)),
+			isDynamic: glob.isDynamicPattern(trimmed),
+			isNegated: line.text[firstNwsIdx] === "!",
+			matches,
 		});
 	}
 

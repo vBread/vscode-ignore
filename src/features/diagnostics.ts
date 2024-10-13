@@ -1,5 +1,5 @@
 import { type Diagnostic, DiagnosticSeverity, languages, type TextDocument } from "vscode";
-import { type IgnoreFile, type IgnorePattern, parse, PatternType } from "../language/parse";
+import { type IgnoreFile, type IgnorePattern, parse } from "../language/parse";
 import { getConfig, type LintSeverity } from "../util";
 
 export const collection = languages.createDiagnosticCollection("ignore");
@@ -24,8 +24,6 @@ export async function update(document: TextDocument): Promise<void> {
 function checkCoveredPatterns(file: IgnoreFile, severity: number): Diagnostic[] {
 	if (severity === -1) return [];
 
-	const patterns = file.patterns.filter((pattern) => pattern.type !== PatternType.Comment);
-
 	const ignored = new Set<string>();
 	const unignored = new Set<string>();
 
@@ -40,7 +38,7 @@ function checkCoveredPatterns(file: IgnoreFile, severity: number): Diagnostic[] 
 		matchedMap.set(pattern, new Set(pattern.matches));
 	}
 
-	for (const pattern of patterns) {
+	for (const pattern of file.patterns) {
 		const matched = matchedMap.get(pattern);
 		if (!matched) continue;
 
@@ -133,21 +131,19 @@ function checkDuplicatePatterns(file: IgnoreFile, severity: number): Diagnostic[
 function checkUnusedPatterns(file: IgnoreFile, severity: number): Diagnostic[] {
 	if (severity === -1) return [];
 
-	return file.patterns
-		.filter((pattern) => pattern.type === PatternType.Pattern)
-		.reduce<Diagnostic[]>((diags, pattern) => {
-			if (!pattern.matches.length) {
-				diags.push({
-					code: DiagnosticCode.UnusedPattern,
-					severity,
-					range: pattern.range,
-					message: `'${pattern.text}' is unused`,
-					source: "ignore",
-				});
-			}
+	return file.patterns.reduce<Diagnostic[]>((diags, pattern) => {
+		if (!pattern.matches.length) {
+			diags.push({
+				code: DiagnosticCode.UnusedPattern,
+				severity,
+				range: pattern.range,
+				message: `'${pattern.text}' is unused`,
+				source: "ignore",
+			});
+		}
 
-			return diags;
-		}, []);
+		return diags;
+	}, []);
 }
 
 function removeAll(source: Set<string>, other: Set<string>) {
