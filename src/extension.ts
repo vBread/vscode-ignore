@@ -1,6 +1,6 @@
 import path from "node:path";
-import { commands, type ExtensionContext, window, workspace } from "vscode";
-import registeredCommands from "./commands";
+import { type ExtensionContext, commands as vscCommands, window, workspace } from "vscode";
+import { commands } from "./commands";
 import { diagnostics, providers } from "./features";
 import { getConfig } from "./util";
 
@@ -30,7 +30,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 				return config.update("ignore.promptOnEmptyFile", false);
 			}
 
-			await commands.executeCommand("ignore.chooseTemplate");
+			await vscCommands.executeCommand("ignore.chooseTemplate");
 		}
 
 		await diagnostics.update(editor.document);
@@ -42,7 +42,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
 	context.subscriptions.push(
 		...providers,
-		...registeredCommands,
+		...commands,
 		diagnostics.collection,
 		textEditorChange,
 		textDocChange,

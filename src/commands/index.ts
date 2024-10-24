@@ -1,10 +1,10 @@
-import { commands } from "vscode";
-import chooseTemplate from "./chooseTemplate";
-import ignorePath from "./ignorePath";
-import newFile from "./newFile";
+import { commands as vscCommands } from "vscode";
+import { chooseTemplate } from "./chooseTemplate";
+import { ignorePath } from "./ignorePath";
+import { newFile } from "./newFile";
 
-export default [
-	commands.registerCommand("ignore.chooseTemplate", chooseTemplate),
-	commands.registerCommand("ignore.ignorePath", ignorePath),
-	commands.registerCommand("ignore.newFile", newFile),
+export const commands = [
+	vscCommands.registerCommand("ignore.chooseTemplate", chooseTemplate),
+	vscCommands.registerCommand("ignore.ignorePath", ignorePath),
+	vscCommands.registerCommand("ignore.newFile", newFile),
 ];

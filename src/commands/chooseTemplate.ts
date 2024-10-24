@@ -1,7 +1,7 @@
 import { Position, type Uri, window, workspace, WorkspaceEdit } from "vscode";
 import { promptTemplate } from "../util";
 
-export default async function (uri?: Uri): Promise<void> {
+export async function chooseTemplate(uri?: Uri): Promise<void> {
 	const document = window.activeTextEditor?.document;
 
 	if (!document) {

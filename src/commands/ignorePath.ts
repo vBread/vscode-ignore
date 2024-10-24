@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { type Uri, window, workspace } from "vscode";
 
-export default async function (uri?: Uri): Promise<void> {
+export async function ignorePath(uri?: Uri): Promise<void> {
 	uri ??= window.activeTextEditor?.document.uri;
 
 	if (!uri) {

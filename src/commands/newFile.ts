@@ -4,7 +4,7 @@ import { Uri, window, workspace } from "vscode";
 import { flavors } from "../language/flavors";
 import { getConfig, promptTemplate } from "../util";
 
-export default async function (uri?: Uri): Promise<void> {
+export async function newFile(uri?: Uri): Promise<void> {
 	const folder = window.activeTextEditor?.document.uri ?? workspace.workspaceFolders?.[0].uri;
 	if (!folder) return;
 
