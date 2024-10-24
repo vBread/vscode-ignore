@@ -5,6 +5,10 @@ import { diagnostics, providers } from "./features";
 import { getConfig } from "./util";
 
 export async function activate(context: ExtensionContext): Promise<void> {
+	if (window.activeTextEditor) {
+		await diagnostics.update(window.activeTextEditor.document);
+	}
+
 	const textEditorChange = window.onDidChangeActiveTextEditor(async (editor) => {
 		if (!editor) return;
 
@@ -28,9 +32,10 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
 			await commands.executeCommand("ignore.chooseTemplate");
 		}
+
+		await diagnostics.update(editor.document);
 	});
 
-	// TODO: better diagnostics reporting
 	const textDocChange = workspace.onDidChangeTextDocument(async (event) => {
 		await diagnostics.update(event.document);
 	});
