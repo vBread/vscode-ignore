@@ -62,11 +62,11 @@ export const provideCompletionItems: CompletionItemProvider["provideCompletionIt
 		return completions;
 	}
 
-	const root = workspace.getWorkspaceFolder(document.uri);
-	if (!root) return [];
+	const cwd = workspace.getWorkspaceFolder(document.uri);
+	if (!cwd) return [];
 
 	const normalized = path.normalize(line.replace(/!/g, ""));
-	const parent = normalized.startsWith("/") ? root.uri.fsPath : path.dirname(document.fileName);
+	const parent = normalized.startsWith("/") ? cwd.uri.fsPath : path.dirname(document.fileName);
 
 	let folder = path.join(parent, normalized);
 

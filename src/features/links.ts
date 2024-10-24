@@ -6,12 +6,12 @@ export const provideDocumentLinks: DocumentLinkProvider["provideDocumentLinks"] 
 	const file = await parse(doc);
 	const links: DocumentLink[] = [];
 
-	const root = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath ?? "";
+	const cwd = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath ?? "";
 
 	for (const pattern of file.patterns) {
 		if (pattern.isDynamic) continue;
 
-		const parent = pattern.text ? root : path.dirname(doc.fileName);
+		const parent = pattern.text ? cwd : path.dirname(doc.fileName);
 		const target = Uri.file(path.join(parent, pattern.text));
 
 		try {

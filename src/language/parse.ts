@@ -17,8 +17,8 @@ export interface IgnorePattern {
 }
 
 export async function parse(document: TextDocument): Promise<IgnoreFile> {
-	const root = workspace.getWorkspaceFolder(document.uri);
-	if (!root) throw new ReferenceError("not in a workspace");
+	const cwd = workspace.getWorkspaceFolder(document.uri);
+	if (!cwd) throw new ReferenceError("not in a workspace");
 
 	const patterns: IgnorePattern[] = [];
 
@@ -36,7 +36,7 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 		const text = path.normalize(trimmed);
 
 		const matches = await glob(text, {
-			cwd: root.uri.fsPath,
+			cwd: cwd.uri.fsPath,
 			dot: true,
 			onlyFiles: false,
 			markDirectories: true,
