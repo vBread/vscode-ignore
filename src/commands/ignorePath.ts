@@ -10,8 +10,15 @@ export async function ignorePath(uri?: Uri): Promise<void> {
 		return;
 	}
 
+	const cwd = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+
+	if (!cwd) {
+		await window.showErrorMessage("Could not ignore path, file is not in a workspace");
+		return;
+	}
+
 	const ignoreFiles = await workspace.findFiles(".*ignore");
-	const toIgnore = path.basename(uri.fsPath);
+	const toIgnore = path.relative(cwd, uri.fsPath).replaceAll(path.sep, path.posix.sep);
 
 	if (!ignoreFiles.length) {
 		await window.showInformationMessage("No .ignore files found in the current workspace");
