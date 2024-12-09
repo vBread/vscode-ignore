@@ -9,7 +9,7 @@ export const provideCodeLenses: CodeLensProvider["provideCodeLenses"] = async (
 	const codeLens: CodeLens[] = [];
 
 	for (const pattern of file.patterns) {
-		if (!pattern.matches) continue;
+		if (!pattern.matches || pattern.isDirectory) continue;
 
 		const matches = pattern.matches.length;
 

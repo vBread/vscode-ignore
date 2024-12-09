@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path/posix";
 import glob from "fast-glob";
 import { Position, Range, type TextDocument, Uri, workspace } from "vscode";
@@ -11,6 +12,7 @@ export interface IgnoreFile {
 export interface IgnorePattern {
 	text: string;
 	range: Range;
+	isDirectory: boolean;
 	isDynamic: boolean;
 	isNegated: boolean;
 	matches: IgnorePatternMatch[];
@@ -47,9 +49,19 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 			markDirectories: true,
 		});
 
+		let isDirectory: boolean;
+
+		try {
+			const stat = await fs.stat(path.join(cwd.uri.fsPath, text));
+			isDirectory = stat.isDirectory();
+		} catch {
+			isDirectory = false;
+		}
+
 		patterns.push({
-			text: path.normalize(trimmed),
+			text,
 			range: new Range(startPos, new Position(line.lineNumber, firstNwsIdx + text.length)),
+			isDirectory,
 			isDynamic: glob.isDynamicPattern(trimmed),
 			isNegated: line.text[firstNwsIdx] === "!",
 			matches: matches.map((match) => ({
