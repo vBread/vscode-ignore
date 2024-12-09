@@ -3,6 +3,7 @@ import { workspace, type WorkspaceConfiguration } from "vscode";
 export type LintSeverity = "off" | "warn" | "error";
 
 interface IgnoreConfiguration extends WorkspaceConfiguration {
+	codeLensMatches: boolean;
 	lint: IgnoreLintConfiguration;
 	newFileConflictBehavior: "append" | "overwrite" | "prompt";
 	promptOnEmptyFile: boolean;

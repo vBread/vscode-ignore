@@ -111,6 +111,11 @@
 		"configuration": {
 			"title": "Ignore",
 			"properties": {
+				"ignore.codeLensMatches": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show the number of matches for each pattern as a CodeLens."
+				},
 				"ignore.lint.coveredPatterns": {
 					"type": "string",
 					"enum": [

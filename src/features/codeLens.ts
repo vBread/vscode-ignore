@@ -1,10 +1,13 @@
 import { CodeLens, type CodeLensProvider, Location, Position, Range } from "vscode";
 import { parse } from "../language/parse";
+import { getConfig } from "../util";
 
 export const provideCodeLenses: CodeLensProvider["provideCodeLenses"] = async (
 	document,
 	_token,
 ) => {
+	if (!getConfig().codeLensMatches) return;
+
 	const file = await parse(document);
 	const codeLens: CodeLens[] = [];
 
