@@ -5,4 +5,6 @@ export default defineConfig({
 	format: "cjs",
 	clean: true,
 	external: ["vscode"],
+	noExternal: ["@octokit/request", "fast-glob"],
+	minify: true,
 });
