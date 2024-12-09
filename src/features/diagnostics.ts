@@ -111,10 +111,7 @@ function checkDuplicatePatterns(file: IgnoreFile, severity: number): Diagnostic[
 	for (const patterns of duplicates.values()) {
 		if (patterns.length === 1) continue;
 
-		for (let i = 0; i < patterns.length; i++) {
-			// Skip first pattern, report on subsequent
-			if (i === 0) continue;
-
+		for (let i = 1; i < patterns.length; i++) {
 			diagnostics.push({
 				code: DiagnosticCode.DuplicatePattern,
 				severity,
