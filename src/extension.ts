@@ -1,8 +1,7 @@
-import path from "node:path";
 import { type ExtensionContext, commands as vscCommands, window, workspace } from "vscode";
 import { commands } from "./commands";
 import { diagnostics, providers } from "./features";
-import { getConfig } from "./util";
+import { getConfig, isIgnoreFile } from "./util";
 
 export async function activate(context: ExtensionContext): Promise<void> {
 	if (window.activeTextEditor) {
@@ -13,10 +12,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
 		if (!editor) return;
 
 		const config = getConfig();
-		const isIgnoreFile = /^\..+ignore$/.test(path.basename(editor.document.fileName));
 		const isEmpty = !editor.document.getText().trim().length;
 
-		if (config.promptOnEmptyFile && isIgnoreFile && isEmpty) {
+		if (config.promptOnEmptyFile && !isIgnoreFile(editor.document.fileName) && isEmpty) {
 			const response = await window.showInformationMessage(
 				"Empty ignore file detected, would you like to use a template?",
 				"Yes",

@@ -1,6 +1,6 @@
 import { type Diagnostic, DiagnosticSeverity, languages, type TextDocument } from "vscode";
 import { type IgnoreFile, type IgnorePattern, parse } from "../language/parse";
-import { getConfig, type LintSeverity } from "../util";
+import { getConfig, isIgnoreFile, type LintSeverity } from "../util";
 
 export const collection = languages.createDiagnosticCollection("ignore");
 
@@ -11,6 +11,8 @@ export enum DiagnosticCode {
 }
 
 export async function update(document: TextDocument): Promise<void> {
+	if (!isIgnoreFile(document.fileName)) return;
+
 	const { lint } = getConfig();
 	const file = await parse(document);
 
