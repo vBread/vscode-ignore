@@ -8,6 +8,9 @@
 - Add duplicate pattern diagnostics
 - Add unused pattern diagnostics
 - Add quick fix code actions for diagnostics
+- Add configuration for diagnostics
+- Add code lenses
+- Remove autocomplete for signatures
 
 ## 2.1.0
 
