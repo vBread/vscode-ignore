@@ -1,6 +1,6 @@
 import path from "node:path/posix";
 import glob from "fast-glob";
-import { Position, Range, type TextDocument, workspace } from "vscode";
+import { Position, Range, type TextDocument, Uri, workspace } from "vscode";
 
 export interface IgnoreFile {
 	name: string;
@@ -13,7 +13,12 @@ export interface IgnorePattern {
 	range: Range;
 	isDynamic: boolean;
 	isNegated: boolean;
-	matches: string[];
+	matches: IgnorePatternMatch[];
+}
+
+export interface IgnorePatternMatch {
+	text: string;
+	uri: Uri;
 }
 
 export async function parse(document: TextDocument): Promise<IgnoreFile> {
@@ -47,7 +52,10 @@ export async function parse(document: TextDocument): Promise<IgnoreFile> {
 			range: new Range(startPos, new Position(line.lineNumber, firstNwsIdx + text.length)),
 			isDynamic: glob.isDynamicPattern(trimmed),
 			isNegated: line.text[firstNwsIdx] === "!",
-			matches,
+			matches: matches.map((match) => ({
+				text: match,
+				uri: Uri.file(path.join(cwd.uri.fsPath, match)),
+			})),
 		});
 	}
 

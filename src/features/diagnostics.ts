@@ -35,7 +35,7 @@ function checkCoveredPatterns(file: IgnoreFile, severity: number): Diagnostic[] 
 	const covered: [IgnorePattern, IgnorePattern][] = [];
 
 	for (const pattern of file.patterns) {
-		matchedMap.set(pattern, new Set(pattern.matches));
+		matchedMap.set(pattern, new Set(pattern.matches.map((m) => m.text)));
 	}
 
 	for (const pattern of file.patterns) {
