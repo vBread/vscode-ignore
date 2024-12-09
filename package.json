@@ -13,6 +13,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "pnpm build",
+		"package": "vsce package --no-dependencies",
 		"build": "tsup",
 		"watch": "tsup --watch",
 		"lint": "prettier --write \"src/**\" && eslint \"src/**\" --fix"
@@ -42,6 +43,7 @@
 		"@antfu/eslint-config": "^3.6.2",
 		"@types/node": "^22.5.5",
 		"@types/vscode": "^1.90.0",
+		"@vscode/vsce": "^3.2.1",
 		"eslint": "^9.10.0",
 		"eslint-config-prettier": "^9.1.0",
 		"prettier": "^3.3.3",
