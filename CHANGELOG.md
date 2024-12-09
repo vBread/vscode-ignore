@@ -1,21 +1,34 @@
-# Change Log
+# Changelog
 
-## 1.0.0
+## 3.0.0
 
-- Initial release
+- Add `.distignore` and `.terraformignore` support
+- Add parser
+- Add covered pattern diagnostics
+- Add duplicate pattern diagnostics
+- Add unused pattern diagnostics
+- Add quick fix code actions for diagnostics
+- Add code lenses
+- Add configuration for diagnostics
+- Add configuration for code lens
+- Remove autocomplete for signatures
 
-## 2.0.0
+## 2.1.0
 
-- Added support for more ignore files
-- Added 2 commands; `Ignore: New File` and `Ignore: Ignore File`
-- Added path completion
-- Added completion for Git pathspec signatures
-- Improved syntax highlighting
+- Add support for basic glob completions
 
 ## 2.0.1
 
 - Fix dependency issue
 
-## 2.1.0
+## 2.0.0
 
-- Added support for basic glob completions
+- Add support for more ignore files
+- Add 2 commands; `Ignore: New File` and `Ignore: Ignore File`
+- Add path completion
+- Add completion for Git pathspec signatures
+- Improve syntax highlighting
+
+## 1.0.0
+
+- Initial release

@@ -1,23 +1,25 @@
-import { basename } from "path";
-import { commands, window, type ExtensionContext } from "vscode";
-import registeredCommands from "./commands";
-import registeredProviders from "./providers";
-import { getConfig } from "./util";
+import { type ExtensionContext, commands as vscCommands, window, workspace } from "vscode";
+import { commands } from "./commands";
+import { diagnostics, providers } from "./features";
+import { getConfig, isIgnoreFile } from "./util";
 
-export function activate(context: ExtensionContext): void {
+export async function activate(context: ExtensionContext): Promise<void> {
+	if (window.activeTextEditor) {
+		await diagnostics.update(window.activeTextEditor.document);
+	}
+
 	const textEditorChange = window.onDidChangeActiveTextEditor(async (editor) => {
 		if (!editor) return;
 
 		const config = getConfig();
-		const isIgnoreFile = /^\..+ignore$/.test(basename(editor.document.fileName));
-		const isEmpty = !editor.document.getText().trim();
+		const isEmpty = !editor.document.getText().trim().length;
 
-		if (config.promptOnEmptyFile && isIgnoreFile && isEmpty) {
+		if (config.promptOnEmptyFile && !isIgnoreFile(editor.document.fileName) && isEmpty) {
 			const response = await window.showInformationMessage(
 				"Empty ignore file detected, would you like to use a template?",
 				"Yes",
 				"No",
-				"Disable this message"
+				"Disable this message",
 			);
 
 			if (!response || response === "No") return;
@@ -26,9 +28,21 @@ export function activate(context: ExtensionContext): void {
 				return config.update("ignore.promptOnEmptyFile", false);
 			}
 
-			await commands.executeCommand("ignore.chooseTemplate");
+			await vscCommands.executeCommand("ignore.chooseTemplate");
 		}
+
+		await diagnostics.update(editor.document);
 	});
 
-	context.subscriptions.push(...registeredProviders, ...registeredCommands, textEditorChange);
+	const textDocChange = workspace.onDidChangeTextDocument(async (event) => {
+		await diagnostics.update(event.document);
+	});
+
+	context.subscriptions.push(
+		...providers,
+		...commands,
+		diagnostics.collection,
+		textEditorChange,
+		textDocChange,
+	);
 }

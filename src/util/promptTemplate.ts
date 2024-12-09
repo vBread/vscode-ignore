@@ -1,10 +1,12 @@
-import { request } from "@octokit/request";
 import { window } from "vscode";
 
+let request: typeof import("@octokit/request").request;
 let templates: string[] | null = null;
+
 const cache = new Map<string, string>();
 
 export async function promptTemplate(): Promise<string | void> {
+	request ??= (await import("@octokit/request")).request;
 	templates ??= (await request("GET /gitignore/templates")).data;
 
 	const name = await window.showQuickPick(templates, {
@@ -16,8 +18,8 @@ export async function promptTemplate(): Promise<string | void> {
 		return cache.get(name);
 	}
 
-	const template = (await request("GET /gitignore/templates/{name}", { name })).data.source;
-	cache.set(name, template);
+	const { data: template } = await request("GET /gitignore/templates/{name}", { name });
+	cache.set(name, template.source);
 
-	return template;
+	return template.source;
 }
