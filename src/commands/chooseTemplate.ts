@@ -16,5 +16,5 @@ export async function chooseTemplate(uri?: Uri): Promise<void> {
 	edit.insert(uri ?? document.uri, new Position(0, 0), template);
 
 	await workspace.applyEdit(edit);
-	await document?.save();
+	await document.save();
 }

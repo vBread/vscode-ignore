@@ -11,38 +11,36 @@ export async function newFile(uri?: Uri): Promise<void> {
 	uri ??= workspace.getWorkspaceFolder(folder)?.uri;
 	if (!uri) return;
 
-	const method = (
-		await window.showQuickPick(
-			[
-				{
-					label: "Empty",
-					detail: "Create an empty file",
-				},
-				{
-					label: "Template",
-					detail: "Create a file from GitHub's collection of .gitignore templates",
-				},
-			],
-			{ placeHolder: "Select a creation method" },
-		)
-	)?.label;
-	if (!method) return;
+	const selectedMethod = await window.showQuickPick(
+		[
+			{
+				label: "Empty",
+				detail: "Create an empty file",
+			},
+			{
+				label: "Template",
+				detail: "Create a file from GitHub's collection of .gitignore templates",
+			},
+		],
+		{ placeHolder: "Select a creation method" },
+	);
+
+	if (!selectedMethod) return;
 
 	let source = "";
 
-	if (method === "Template") {
+	if (selectedMethod.label === "Template") {
 		source = (await promptTemplate()) ?? "";
 	}
 
-	const filename = (
-		await window.showQuickPick(
-			flavors.map((flavor) => ({ label: flavor.filename, description: flavor.name })),
-			{ placeHolder: "Select a filename" },
-		)
-	)?.label;
-	if (!filename) return;
+	const selectedFile = await window.showQuickPick(
+		flavors.map((flavor) => ({ label: flavor.filename, description: flavor.name })),
+		{ placeHolder: "Select a filename" },
+	);
 
-	const target = path.resolve(uri.fsPath, filename);
+	if (!selectedFile) return;
+
+	const target = path.resolve(uri.fsPath, selectedFile.label);
 	let file: FileHandle | undefined;
 
 	try {
@@ -54,7 +52,7 @@ export async function newFile(uri?: Uri): Promise<void> {
 
 		if (config.newFileConflictBehavior === "prompt") {
 			const action = await window.showErrorMessage(
-				`A "${filename}" file already exists. Would you like to overwrite or append it?`,
+				`A "${selectedFile.label}" file already exists. Would you like to overwrite or append it?`,
 				"Overwrite",
 				"Append",
 				"Cancel",
