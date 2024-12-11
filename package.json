@@ -4,7 +4,7 @@
 	"description": "Language features for `.*ignore` files",
 	"icon": "./assets/dot-ignore.png",
 	"main": "./dist/extension.js",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"publisher": "Breadnaught",
 	"license": "MIT",
 	"packageManager": "pnpm@9.9.0",
