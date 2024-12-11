@@ -14,7 +14,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 		const config = getConfig();
 		const isEmpty = !editor.document.getText().trim().length;
 
-		if (config.promptOnEmptyFile && !isIgnoreFile(editor.document.fileName) && isEmpty) {
+		if (config.promptOnEmptyFile && isIgnoreFile(editor.document.fileName) && isEmpty) {
 			const response = await window.showInformationMessage(
 				"Empty ignore file detected, would you like to use a template?",
 				"Yes",
